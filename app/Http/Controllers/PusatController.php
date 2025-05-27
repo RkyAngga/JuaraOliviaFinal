@@ -34,12 +34,20 @@ class PusatController extends Controller
                 'dinas' => ['required', 'array', 'min:1'],
                 'dinas.*' => ['exists:dinas,id'],
                 'nik' => ['nullable', 'prohibited'],
-                'foto_profil' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+                'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             Log::info('Validation passed', ['validated_data' => $validated]);
 
             DB::beginTransaction();
+
+            $data = $request->all();
+
+            if ($request->hasFile('foto_profil')) {
+                $file = $request->file('foto_profil');
+                $path = $file->store('foto_profil_pusat', 'public');
+                $data['foto_profil'] = $path;
+            }
 
             // Create user
             $user = User::create([
@@ -49,47 +57,24 @@ class PusatController extends Controller
                 'password' => Hash::make($request->password),
                 'nomor_telepon' => $request->nomor_telepon,
                 'role' => 'pemerintahpusat',
-                'nik' => null
+                'nik' => null,
+                'foto_profil' => $data['foto_profil'] ?? null,
             ]);
 
             Log::info('User created', ['user_id' => $user->id]);
 
-            // Upload foto profil jika ada
-            $fotoProfilPath = null;
-            if ($request->hasFile('foto_profil')) {
-                $fotoProfilPath = $request->file('foto_profil')->store('foto_profil_pusat', 'public');
-            }
-
-            // Prepare pivot data
-            $pivotData = [];
-            foreach ($request->dinas as $dinasId) {
-                $dinas = Dinas::find($dinasId);
-                $pivotData[$dinasId] = [
-                    'username' => $request->username,
-                    'nomor_telepon' => $request->nomor_telepon,
-                    'email' => $request->email,
-                    'wilayah' => $dinas->wilayah,
-                    'latitude' => $request->latitude,
-                    'longitude' => $request->longitude
-                ];
-            }
-
-            // Attach selected dinas with additional data
-            $user->dinasPusat()->attach($pivotData);
-
-            Log::info('Dinas attached', ['dinas_ids' => $request->dinas]);
-
             // Setelah create user, simpan ke pemerintah_pusat_dinas
+            $dinasUtama = Dinas::find($request->dinas[0] ?? null);
             $pemerintahPusat = new \App\Models\PemerintahPusatDinas();
             $pemerintahPusat->user_id = $user->id;
             $pemerintahPusat->dinas_id = $request->dinas[0] ?? null;
             $pemerintahPusat->username = $request->username;
             $pemerintahPusat->nomor_telepon = $request->nomor_telepon;
             $pemerintahPusat->email = $request->email;
-            $pemerintahPusat->wilayah = $request->wilayah ?? null;
+            $pemerintahPusat->wilayah = $dinasUtama ? $dinasUtama->wilayah : '-';
             $pemerintahPusat->latitude = $request->latitude;
             $pemerintahPusat->longitude = $request->longitude;
-            $pemerintahPusat->foto_profil = $fotoProfilPath;
+            $pemerintahPusat->foto_profil = $data['foto_profil'] ?? null;
             $pemerintahPusat->save();
 
             DB::commit();

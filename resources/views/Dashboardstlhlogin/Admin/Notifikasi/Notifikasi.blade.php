@@ -7,7 +7,7 @@
         <div class="w-30 h-1 bg-kuning rounded-full mb-6"></div>
     </div>
 
-    <div class="max-w-3xl mx-auto space-y-4">
+    <div class="space-y-4">
         <!-- Notifikasi Item -->
         @foreach($notifikasis as $notif)
             <div id="notif-{{ $notif->notifikasi_id }}"

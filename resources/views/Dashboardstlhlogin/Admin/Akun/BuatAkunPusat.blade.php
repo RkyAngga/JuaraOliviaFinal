@@ -23,19 +23,19 @@
     <!-- Form Container dengan efek card -->
     <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-2xl p-8 shadow-xl">
-            <form action="{{ route('admin.akun.pusat.store') }}" method="POST" class="space-y-8">
+            <form action="{{ route('admin.akun.pusat.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Kolom Kiri -->
                     <div class="space-y-6">
                         <div class="bg-gray-50 backdrop-blur-sm p-6 rounded-xl space-y-6 shadow-sm">
                             <h3 class="text-xl font-semibold text-gray-800 mb-4">Informasi Dasar</h3>
-                            
+
                             <!-- Nama Pemerintah Pusat -->
                             <div class="space-y-2">
                                 <label for="nama_lengkap" class="block text-gray-700 font-medium">Nama Pemerintah Pusat</label>
                                 <div class="relative">
-                                    <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Nama Lengkap" 
+                                    <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Nama Lengkap"
                                         class="w-full px-4 py-3 rounded-lg bg-white border-2 border-gray-200 focus:border-hitam focus:ring-2 focus:ring-hitam transition-all duration-300"
                                         value="{{ old('nama_lengkap') }}" required>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
@@ -53,7 +53,7 @@
                             <div class="space-y-4">
                                 <div class="relative">
                                     <label for="username" class="block text-gray-700 font-medium mb-2">Username</label>
-                                    <input type="text" id="username" name="username" placeholder="Username" 
+                                    <input type="text" id="username" name="username" placeholder="Username"
                                         class="w-full px-4 py-3 rounded-lg bg-white border-2 border-gray-200 focus:border-hitam focus:ring-2 focus:ring-hitam transition-all duration-300"
                                         value="{{ old('username') }}" required>
                                     @error('username')
@@ -75,7 +75,7 @@
                         <!-- Latitude di kolom kiri -->
                         <div class="space-y-2">
                             <label for="latitude" class="block text-hitam font-medium">Latitude</label>
-                            <input type="number" step="any" id="latitude" name="latitude" placeholder="Latitude"
+                            <input type="number" step="any" id="latitude" name="latitude" placeholder="-6.200000"
                                 class="w-full px-4 py-3 rounded-lg bg-white border-2 border-gray-200 focus:border-kuning focus:ring-2 focus:ring-kuning transition-all duration-300 @error('latitude') border-red-500 @enderror"
                                 value="{{ old('latitude') }}">
                             @error('latitude')
@@ -144,7 +144,7 @@
                         <!-- Longitude di kolom kanan -->
                         <div class="space-y-2">
                             <label for="longitude" class="block text-hitam font-medium">Longitude</label>
-                            <input type="number" step="any" id="longitude" name="longitude" placeholder="Longitude"
+                            <input type="number" step="any" id="longitude" name="longitude" placeholder="106.816666"
                                 class="w-full px-4 py-3 rounded-lg bg-white border-2 border-gray-200 focus:border-kuning focus:ring-2 focus:ring-kuning transition-all duration-300 @error('longitude') border-red-500 @enderror"
                                 value="{{ old('longitude') }}">
                             @error('longitude')
@@ -180,7 +180,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </button>
-                    
+
                     <a href="{{ route('admin.akun') }}" class="bg-gray-100 text-hitam font-medium py-3 px-8 rounded-xl hover:bg-gray-200 transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -215,13 +215,13 @@ function showSuccessModal(event) {
     event.preventDefault();
     const modal = document.getElementById('successModal');
     const modalContent = modal.querySelector('div > div');
-    
+
     modal.classList.remove('hidden');
     setTimeout(() => {
         modalContent.classList.remove('scale-90', 'opacity-0');
         modalContent.classList.add('scale-100', 'opacity-100');
     }, 10);
-    
+
     setTimeout(() => {
         window.location.href = '/admin/akun';
     }, 2000);

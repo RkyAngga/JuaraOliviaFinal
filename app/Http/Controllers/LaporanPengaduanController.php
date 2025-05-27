@@ -79,14 +79,21 @@ class LaporanPengaduanController extends Controller
         // 4. SIMPAN LAPORAN BARU
         $path = $request->file('foto')->store('laporan', 'public');
 
-        // Atur dinas_id secara eksplisit menjadi 1 karena hanya ada 1 dinas
-        // Hapus atau perbaiki logika penentuan dinas berdasarkan lokasi di masa depan jika ada lebih dari 1 dinas.
-        $assignedDinasId = 1;
-        \Log::info('Menetapkan dinas_id = 1 untuk laporan baru');
+        // Ambil dinas pertama yang ada di database
+        $firstDinas = \App\Models\Dinas::first();
+        $assignedDinasId = $firstDinas ? $firstDinas->id : null;
+        if (!$assignedDinasId) {
+            \Log::error('Tidak ada dinas yang tersedia. Hubungi admin.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada dinas yang tersedia. Hubungi admin.'
+            ], 500);
+        }
+        \Log::info('Menetapkan dinas_id = ' . $assignedDinasId . ' untuk laporan baru');
 
         $laporan = \App\Models\LaporanPengaduan::create([
             'masyarakat_id' => $masyarakatId,
-            'dinas_id' => $assignedDinasId, // Gunakan assignedDinasId (sekarang 1)
+            'dinas_id' => $assignedDinasId, // Gunakan assignedDinasId (sekarang dinamis)
             'lokasi' => $request->input('alamat'),
             'latitude' => $latitude,
             'longitude' => $longitude,

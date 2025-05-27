@@ -31,5 +31,21 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('unreadNotifCount', $unreadNotifCount);
         });
+
+        // View composer untuk template pusat
+        View::composer('Dashboardstlhlogin.pemerintahpusat.template.*', function ($view) {
+            if (Auth::check() && Auth::user()->role === 'pemerintahpusat') {
+                $pusat = \App\Models\PemerintahPusatDinas::where('user_id', Auth::id())->first();
+                $view->with('pusat', $pusat);
+            }
+        });
+
+        // View composer untuk template dinas
+        View::composer('Dashboardstlhlogin.Dinas.template.*', function ($view) {
+            if (Auth::check() && Auth::user()->role === 'dinas') {
+                $dinas = \App\Models\Dinas::where('user_id', Auth::id())->first();
+                $view->with('dinas', $dinas);
+            }
+        });
     }
 }

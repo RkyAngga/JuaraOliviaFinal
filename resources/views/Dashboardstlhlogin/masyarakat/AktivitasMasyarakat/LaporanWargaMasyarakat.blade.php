@@ -132,6 +132,8 @@
                             @if($laporan->status == 'Di Proses')
                                 {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
                             @elseif($laporan->status == 'Ditolak')
+                                Ditolak
+                            @elseif($laporan->status == 'Tidak Terselesaikan')
                                 Tidak Terselesaikan
                             @else
                                 {{ $laporan->status }}
@@ -146,7 +148,7 @@
                             {{-- Informasi Laporan --}}
                             <div class="p-5">
                                 <div class="flex justify-between items-start">
-                                    <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors line-clamp-2">{{ $laporan->deskripsi }}</h3>
+                                    <h3 class="text-xl font-bold break-words whitespace-normal">{{ $laporan->deskripsi }}</h3>
                                     <span class="text-sm text-gray-500">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</span>
                                 </div>
                                 <div class="flex items-center text-gray-600 text-sm mb-2">

@@ -24,22 +24,6 @@
                     </svg>
                 </div>
 
-                <!-- Role Filter Dropdown dengan animasi -->
-                <div class="relative group">
-                    <select id="roleFilter" class="w-full md:w-48 pl-4 pr-10 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-kuning focus:border-transparent transition-all duration-300 appearance-none bg-white/80 backdrop-blur-sm cursor-pointer">
-                        <option value="">Semua Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="dinas">Dinas</option>
-                        <option value="pemerintahpusat">Pemerintah Pusat</option>
-                        <option value="masyarakat">Masyarakat</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400 group-hover:text-kuning transition-colors duration-300">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                </div>
-
                 <!-- Sort Dropdown dengan animasi -->
                 <div class="relative group">
                     <select id="sortBy" class="w-full md:w-48 pl-4 pr-10 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-kuning focus:border-transparent transition-all duration-300 appearance-none bg-white/80 backdrop-blur-sm cursor-pointer">
@@ -47,6 +31,8 @@
                         <option value="oldest">Terlama</option>
                         <option value="name_asc">Nama (A-Z)</option>
                         <option value="name_desc">Nama (Z-A)</option>
+                        <option value="username_asc">Username (A-Z)</option>
+                        <option value="username_desc">Username (Z-A)</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400 group-hover:text-kuning transition-colors duration-300">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
