@@ -1,0 +1,46 @@
+.resize-logo {
+    width: 216px; /* Menetapkan lebar gambar */
+    height: 40px; /* Menetapkan tinggi gambar */
+    flex-shrink: 0; /* Menghindari gambar mengecil jika container mengecil */
+    aspect-ratio: 259 / 48; /* Menetapkan rasio aspek gambar agar tetap proporsional */
+    object-fit: contain; /* Menjaga gambar agar sesuai dengan rasio tanpa terdistorsi */
+}
+
+/* cutom map */
+#map {
+    /* Fallback jika Tailwind tidak bekerja */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    background-color: #f3f4f6; /* Warna latar untuk visualisasi */
+}
+
+/* Custom CSS untuk marker */
+.marker-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border: 2px solid white;
+}
+.marker-red {
+    background-color: red;
+}
+.marker-blue {
+    background-color: blue;
+}
+.marker-green {
+    background-color: green;
+}
+.marker-yellow {
+    background-color: yellow;
+    color: black;
+}
+.marker-purple {
+    background-color: purple;
+}

@@ -1,0 +1,127 @@
+.register-container {
+    background-color: #FFB800;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.register-title {
+    color: #1A1A1A;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.register-disclaimer {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+    color: #1A1A1A;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: #1A1A1A;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.form-field {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #1A1A1A;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #FFC436;
+    box-shadow: 0 0 0 2px rgba(255, 196, 54, 0.5);
+    transform: scale(1.01);
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.register-button {
+    width: 100%;
+    max-width: 20rem;
+    margin: 0 auto;
+    padding: 0.75rem 1rem;
+    background-color: white;
+    color: #1A1A1A;
+    font-weight: 700;
+    border-radius: 9999px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.register-button:hover {
+    transform: scale(0.98);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: #1A1A1A;
+}
+
+.login-link a {
+    color: #0066CC;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    opacity: 0.8;
+}

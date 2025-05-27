@@ -1,0 +1,125 @@
+.navbar-fixed {
+    @apply fixed z-[999] bg-kuning shadow-xl backdrop-blur-md;
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+}
+.nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Underline default (non-scroll) */
+#nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #FACC15; /* Warna kuning */
+    transition: all 0.3s ease;
+}
+
+/* Underline hover & active */
+#nav-menu a:hover::after,
+#nav-menu a.active::after {
+    width: 100%;
+}
+
+/* Warna underline saat navbar fixed (scroll) */
+.navbar-fixed #nav-menu a::after {
+    background-color: white !important;
+}
+
+/* Warna teks saat scroll */
+.navbar-fixed #nav-menu a {
+    @apply text-hitam hover:text-white/90;
+}
+
+.navbar-fixed #nav-menu a.active {
+    @apply text-hitam;
+}
+
+#nav-menu.open {
+  display: block;
+  max-height: 100vh;
+}
+
+
+
+
+
+/* Untuk memastikan hamburger tetap terlihat */
+.hamburger-line {
+    @apply w-[30px] h-[3px] my-[5px] block bg-kuning transition-all duration-300 ease-in-out;
+  }
+
+  /* Hamburger Active State */
+  #hamburger.active .hamburger-line:nth-child(1) {
+    @apply transform rotate-45 translate-y-[8px];
+  }
+  #hamburger.active .hamburger-line:nth-child(2) {
+    @apply opacity-0;
+  }
+  #hamburger.active .hamburger-line:nth-child(3) {
+    @apply transform -rotate-45 -translate-y-[8px];
+  }
+
+  /* Nav Menu Mobile */
+  #nav-menu {
+    transition: all 0.3s ease-in-out;
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  #nav-menu.open {
+    max-height: 500px; /* Adjust based on content */
+  }
+
+  @media (min-width: 1024px) {
+    #nav-menu {
+      max-height: none !important;
+      display: block !important;
+    }
+  }
+
+
+  /* Profile dropdown animation */
+.profile-dropdown {
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+.profile-dropdown:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Hamburger default hitam */
+.hamburger-line {
+    background-color: #000;
+    transition: background 0.3s;
+}
+/* Saat discroll, tetap hitam */
+.header.scrolled .hamburger-line {
+    background-color: #000;
+}
+.hamburger-line-yellow {
+    background-color: #000;
+    transition: background 0.3s;
+}
+.hamburger-line-white {
+    background-color: #000;
+    transition: background 0.3s;
+}
+@media (max-width: 1023px) {
+    #nav-menu {
+        background: #fff !important;
+        opacity: 1 !important;
+        z-index: 9999 !important;
+    }
+}

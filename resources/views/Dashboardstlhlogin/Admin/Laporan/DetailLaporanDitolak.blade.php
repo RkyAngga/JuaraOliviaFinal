@@ -1,0 +1,367 @@
+@extends('Dashboardstlhlogin.Admin.Template.Template')
+
+@section('content')
+<section class="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen py-4">
+    <div class="container mx-auto px-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-4 sm:mb-6">
+            <div class="flex items-center gap-3">
+                <a href="/admin/laporan" class="p-2 hover:bg-gray-100 rounded-lg transition-colors group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 group-hover:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Detail Laporan Pengaduan</h2>
+            </div>
+    </div>
+    <div class="w-full h-1 bg-yellow-400 mb-4 sm:mb-6"></div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Foto Before & After Section -->
+            <div class="lg:col-span-7">
+                <!-- Image Modal -->
+                <div id="image-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden justify-center items-center z-50">
+                    <div class="relative bg-white p-8 rounded-lg max-w-4xl mx-4">
+                        <span id="close-modal" class="absolute top-2 right-2 text-2xl font-bold text-gray-500 cursor-pointer">&times;</span>
+                        <img id="modal-image" src="" alt="Foto Laporan" class="w-full h-auto max-h-[90vh] object-contain rounded-xl">
+                    </div>
+                </div>
+   <!-- Before Photo -->
+   <div class="bg-white rounded-xl shadow-xl overflow-hidden border-4 border-blue-500 mb-8">
+    <img id="modal-image" src="{{ asset('storage/' . $laporan->foto_video) }}" alt="Foto Laporan" class="w-full h-auto max-h-[90vh] object-contain rounded-xl">
+   <div class="p-4 bg-gray-50">
+       <h3 class="text-lg font-semibold text-gray-800 mb-2">Kondisi Sebelum</h3>
+       <p class="text-sm text-gray-600">Waktu Laporan{{ $laporan->created_at->format('Y-m-d H:i:s') }}</p>
+   </div>
+</div>
+
+<!-- After Photo -->
+<div class="bg-white rounded-xl shadow-xl overflow-hidden border-4 border-blue-950 mb-8">
+    @if($penyelesaian && $penyelesaian->foto_penyelesaian)
+        <img src="{{ asset('storage/' . $penyelesaian->foto_penyelesaian) }}" alt="Foto After" class="w-full h-96 object-cover rounded-xl transform  transition duration-300">
+    @else
+        <div class="w-full h-96 flex items-center justify-center text-gray-400">Belum ada foto penyelesaian</div>
+    @endif
+    <div class="p-4 bg-gray-50">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Kondisi Sesudah</h3>
+                <p id="timestamp" class="text-sm text-gray-600"></p>
+            </div>
+        </div>
+
+        @if($penyelesaian && $penyelesaian->waktu_foto)
+            <p class="text-sm text-gray-600">Waktu Foto: {{ \Carbon\Carbon::parse($penyelesaian->waktu_foto)->format('Y-m-d H:i:s') }}</p>
+        @endif
+    </div>
+</div>
+
+                  <!-- Like and Comment Count Section -->
+                  <div class="max-w-4xl mx-auto px-4 mb-4 flex items-center space-x-4">
+                    <span class="flex items-center space-x-1 text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                        <span>{{ $likeCount }}</span>
+                    </span>
+                    <span class="flex items-center space-x-1 text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <span>{{ $komentar->count() }}</span>
+                    </span>
+                </div>
+<div class="bg-white rounded-xl shadow-lg p-6 border border-putih">
+    <div class="flex items-center mb-4">
+        <div class="h-8 w-1 bg-yellow-400 rounded-full mr-3"></div>
+        <h2 class="text-xl font-semibold text-gray-800">Alasan Penolakan</h2>
+    </div>
+    <p class="text-gray-700 pl-4">{{ $alasan_penolakan }}</p>
+    <p class="text-gray-400 pl-4 text-xs">Ditolak pada: {{ \Carbon\Carbon::parse($waktu_tolak)->format('d M Y • H:i') }} WIB</p>
+</div>
+                <!-- Comment Section -->
+                <div class="max-w-4xl mx-auto rounded-3xl shadow-md p-6 my-8 mb-8 border border-putih">
+                    <div class="space-y-4 h-64 overflow-y-auto mb-4 pr-2">
+                        @forelse($komentar as $k)
+                            <div class="flex items-start {{ $k->user_id == auth()->user()->id ? 'justify-end' : '' }} space-x-3">
+                                @if($k->user_id != auth()->user()->id)
+                                    <img src="{{ ($k->user && $k->user->masyarakat && $k->user->masyarakat->foto_profil) ? 'data:image;base64,' . base64_encode($k->user->masyarakat->foto_profil) : asset('img/logo/profil.png') }}" alt="Foto Profil" class="w-10 h-10 rounded-full object-cover">
+                                @endif
+                                <div class="bg-kuning p-3 rounded-lg shadow max-w-xs sm:max-w-md">
+                                    <p class="text-sm text-gray-800">{{ $k->isi_komentar }}</p>
+                                    <span class="text-xs text-gray-400">{{ $k->user->username ?? 'User' }} - {{ $k->created_at->diffForHumans() }}</span>
+                                </div>
+                                @if($k->user_id == auth()->user()->id)
+                                    <img src="{{ ($k->user && $k->user->masyarakat && $k->user->masyarakat->foto_profil) ? 'data:image;base64,' . base64_encode($k->user->masyarakat->foto_profil) : asset('img/logo/profil.png') }}" alt="Foto Profil" class="w-10 h-10 rounded-full object-cover">
+                                @endif
+                            </div>
+                        @empty
+                            <p class="text-center text-gray-500">Belum ada komentar untuk laporan ini.</p>
+                        @endforelse
+                    </div>
+               </div>
+
+                </div>
+
+                <!-- Right Column -->
+            <div class="lg:col-span-5">
+                <div class="bg-white rounded-xl shadow-xl p-8 h-full">
+                    <!-- Problem Section -->
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-yellow-100 p-2 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800">Permasalahan</h3>
+                        </div>
+                        <p class="text-gray-700 text-lg pl-14">{{ $laporan->deskripsi }}</p>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800">Lokasi</h3>
+                        </div>
+                        <p class="text-gray-700 text-lg pl-14">{{ $laporan->lokasi }}</p>
+                    </div>
+
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-100 p-2 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800">Waktu Laporan</h3>
+                        </div>
+                        <p class="text-gray-700 text-lg pl-14">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</p>
+                    </div>
+
+                    <!-- Status Section -->
+                    <div class="mb-10">
+                        <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b-2 border-yellow-400 pb-2 inline-block">Status Laporan</h2>
+                        <div class="relative mt-8 pl-6">
+                            <div class="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-yellow-400 via-blue-400 to-red-400 rounded-full"></div>
+
+                            <div class="space-y-10">
+                                <!-- Status 1 - Active -->
+                                <div class="relative flex items-start group">
+                                    <div class="absolute left-0 flex items-center justify-center transform -translate-x-1/2 -translate-y-3">
+                                        <div class="h-6 w-6 rounded-full bg-yellow-400 border-4 border-white shadow-lg flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="pl-8">
+                                        <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 shadow-sm">
+                                            <div class="flex items-center">
+                                                <span class="flex items-center justify-center h-8 w-8 rounded-full bg-yellow-100 mr-3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </span>
+                                                <h3 class="text-lg font-semibold text-gray-800">Menunggu Verifikasi</h3>
+                                            </div>
+                                            <p class="text-gray-600 mt-2 ml-11">Laporan telah diterima dan sedang menunggu verifikasi</p>
+                                            <p class="text-sm text-gray-400 mt-2 ml-11">Waktu Laporan{{ $laporan->created_at->format('Y-m-d H:i:s') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status 2 - Next -->
+                                <div class="relative flex items-start group">
+                                    <div class="absolute left-0 flex items-center justify-center transform -translate-x-1/2 -translate-y-3">
+                                        <div class="h-6 w-6 rounded-full bg-blue-400 border-4 border-white shadow-lg flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="pl-8">
+                                        <div class="bg-blue-500 p-4 rounded-xl border border-blue-500 shadow-sm">
+                                            <div class="flex items-center">
+                                                <span class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 mr-3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                    </svg>
+                                                </span>
+                                                <h3 class="text-lg font-semibold text-black">Dalam Proses</h3>
+                                            </div>
+                                            @php
+                                                $trackProses = $tracking->where('status', 'Di Proses')->last();
+                                            @endphp
+                                            @if($trackProses)
+                                                @if($trackProses->sub_status == 'proses')
+                                                    <span style="color: #2196F3;">Laporan sedang di Proses, di tindak lanjuti</span>
+                                                @elseif($trackProses->sub_status == 'menunggu_verifikasi_admin')
+                                                    <span style="color: #093456;" class="text-white mt-2 ">Laporan Telah Diselesaikan, menunggu verifkasi admin</span>
+                                                    @if($penyelesaian && $penyelesaian->waktu_foto)
+                                                        <p class="text-sm text-white">Waktu Foto: {{ \Carbon\Carbon::parse($penyelesaian->waktu_foto)->format('Y-m-d H:i:s') }}</p>
+                                                    @endif
+                                                @endif
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status 3 - Future -->
+                                <div class="relative flex items-start group">
+                                    <div class="absolute left-0 flex items-center justify-center transform -translate-x-1/2 -translate-y-3">
+                                        <div class="h-6 w-6 rounded-full bg-red-400 border-4 border-white shadow-lg flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-6">
+                                                <path fill-rule="evenodd" d="M6 18 18 6M6 6l12 12" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="pl-8 w-full">
+                                        <div class="bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
+                                            <div class="flex items-center">
+                                                <span class="flex items-center justify-center h-8 w-8 rounded-full bg-red-100 mr-3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
+                                                    </svg>
+                                                </span>
+                                                <h3 class="text-lg font-semibold text-gray-500">Laporan Ditolak Oleh Admin</h3>
+                                            </div>
+                                            <p class="text-gray-700 pl-4">{{ $alasan_penolakan }}</p>
+                                            <p class="text-gray-400 pl-4 text-xs">Ditolak pada: {{ \Carbon\Carbon::parse($waktu_tolak)->format('d M Y • H:i') }} WIB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+    // Modal Functionality
+    function openModal(imgElement) {
+        const modal = document.getElementById("image-modal");
+        const modalImg = document.getElementById("modal-image");
+        modal.classList.remove("hidden");
+        modalImg.src = imgElement.src;
+    }
+
+    document.getElementById("close-modal").addEventListener("click", () => {
+        document.getElementById("image-modal").classList.add("hidden");
+    });
+
+    window.addEventListener("click", (event) => {
+        const modal = document.getElementById("image-modal");
+        if (event.target === modal) {
+            modal.classList.add("hidden");
+        }
+    });
+
+    // Form Validation
+    function validateForm() {
+        let isValid = true;
+
+        // Validasi Tanggal Pengerjaan
+        const tanggalPengerjaan = document.getElementById('tanggal_pengerjaan').value;
+        const tanggalError = document.getElementById('tanggalError');
+        if (!tanggalPengerjaan) {
+            tanggalError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            tanggalError.classList.add('hidden');
+        }
+
+        // Validasi Tanggal Estimasi Selesai
+        const tanggalEstimasi = document.getElementById('tanggal_estimasi_selesai').value;
+        const estimasiError = document.getElementById('estimasiError');
+        if (!tanggalEstimasi) {
+            estimasiError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            estimasiError.classList.add('hidden');
+        }
+
+        // Validasi Deskripsi
+        const deskripsi = document.getElementById('deskripsi_pengerjaan').value;
+        const deskripsiError = document.getElementById('deskripsiError');
+        if (!deskripsi.trim()) {
+            deskripsiError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            deskripsiError.classList.add('hidden');
+        }
+
+        // Validasi Ukuran File
+        const dokumenInput = document.getElementById('dokumen');
+        const dokumenError = document.getElementById('dokumenError');
+        if (dokumenInput.files.length > 0) {
+            const fileSize = dokumenInput.files[0].size / 1024 / 1024;
+            if (fileSize > 5) {
+                dokumenError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                dokumenError.classList.add('hidden');
+            }
+        }
+
+        return isValid;
+    }
+
+    // Load Geolocation Data
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportData = JSON.parse(localStorage.getItem('currentReport'));
+
+        if (reportData) {
+            document.getElementById('after-photo').src = reportData.image;
+            document.getElementById('timestamp').textContent = new Date(reportData.timestamp).toLocaleString();
+            document.getElementById('coordinates').textContent =
+                `${reportData.location.latitude.toFixed(6)}, ${reportData.location.longitude.toFixed(6)}`;
+            document.getElementById('geo-accuracy').textContent = `Akurasi: ${reportData.location.accuracy.toFixed(1)}m`;
+
+            const addressHtml = `
+            <div>Jalan: ${reportData.address.jalan}</div>
+            <div>Desa/Kelurahan: ${reportData.address.desa}</div>
+            <div>Kecamatan: ${reportData.address.kecamatan}</div>
+            <div>Kota: ${reportData.address.kota}</div>
+            <div>Provinsi: ${reportData.address.provinsi}</div>
+        `;
+            document.getElementById('address-details').innerHTML = addressHtml;
+
+            localStorage.removeItem('currentReport');
+        }
+    });
+
+    // Real-time Validation
+    document.getElementById('tanggal_pengerjaan').addEventListener('change', function() {
+        if (this.value) document.getElementById('tanggalError').classList.add('hidden');
+    });
+
+    document.getElementById('tanggal_estimasi_selesai').addEventListener('change', function() {
+        if (this.value) document.getElementById('estimasiError').classList.add('hidden');
+    });
+
+    document.getElementById('deskripsi_pengerjaan').addEventListener('input', function() {
+        if (this.value.trim()) document.getElementById('deskripsiError').classList.add('hidden');
+    });
+
+    document.getElementById('dokumen').addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const fileSize = this.files[0].size / 1024 / 1024;
+            if (fileSize <= 5) document.getElementById('dokumenError').classList.add('hidden');
+        }
+    });
+</script>
+@endsection
