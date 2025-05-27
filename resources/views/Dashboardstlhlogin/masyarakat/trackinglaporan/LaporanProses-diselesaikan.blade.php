@@ -27,7 +27,7 @@
                 </div>
 
     <div class="justify-start">                          <!-- Like and Comment Count Section -->
-        <div class="max-w-4xl mx-auto  mb-4 flex items-center space-x-4">
+        <div class="max-w-4xl mx-auto mb-4 flex items-center space-x-4">
             <form action="{{ route('masyarakat.laporan.like', $laporan->id) }}" method="POST" class="inline">
                 @csrf
                 <button type="submit" class="flex items-center space-x-1 text-gray-600 hover:text-blue-500 {{ $liked ? 'text-blue-600' : '' }}">
@@ -45,6 +45,18 @@
             </div>
         </div>
     </div>
+    @php
+    $penyelesaian = \App\Models\PenyelesaianLaporan::where('pengaduan_id', $laporan->id)->first();
+@endphp
+
+@if($penyelesaian)
+    <div class="mb-2 bg-blue-100 rounded-lg border-radius border-4 border-white shadow-sm p-4">
+        <h4 class="font-bold text-lg mb-2">Detail Pengerjaan</h4>
+        <p class="mb-2"><b>Tanggal Pengerjaan:</b> {{ $penyelesaian->tanggal_mulai }}</p>
+        <p class="mb-2"><b>Estimasi Selesai:</b> {{ $penyelesaian->tanggal_selesai }}</p>
+        <p class="mb-2"><b>Deskripsi:</b> {{ $penyelesaian->deskripsi_pengerjaan ?? '-' }}</p>
+    </div>
+@endif
                 <!-- Moved and Modified Comment Section -->
                 <div class="bg-white rounded-xl shadow-xl p-8 pt-4">
                     {{-- Area untuk menampilkan komentar dengan scroll --}}
@@ -216,19 +228,6 @@
                             </div>
                         </div>
                     </div>
-
-                    @php
-                        $penyelesaian = \App\Models\PenyelesaianLaporan::where('pengaduan_id', $laporan->id)->first();
-                    @endphp
-
-                    @if($penyelesaian)
-                        <div class="mb-6">
-                            <h4 class="font-bold text-lg mb-2">Detail Pengerjaan</h4>
-                            <p><b>Tanggal Pengerjaan:</b> {{ $penyelesaian->tanggal_mulai }}</p>
-                            <p><b>Estimasi Selesai:</b> {{ $penyelesaian->tanggal_selesai }}</p>
-                            <p><b>Deskripsi:</b> {{ $penyelesaian->deskripsi_pengerjaan ?? '-' }}</p>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
