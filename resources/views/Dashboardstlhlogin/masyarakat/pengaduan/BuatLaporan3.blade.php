@@ -32,6 +32,27 @@
         </div>
     </div>
 
+    <!-- Modal Laporan Tidak Terkirim (Batas Maksimal) -->
+    <div id="maxLaporanModal" class="fixed inset-0 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+        <div class="bg-yellow-400 border-2 border-blue-400 rounded-3xl px-8 py-10 max-w-lg w-full text-center shadow-2xl relative">
+            <div class="text-2xl font-bold text-black mb-6">Laporan Tidak Terkirim</div>
+            <div class="flex justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+            <div class="text-base font-medium text-black mb-8">
+                Maaf Laporan di lokasi ini sudah mencapai batas maksimal . Silakan berikan ulasan terhadap laporan yang sudah ada.
+            </div>
+            <button onclick="window.location.href='{{ route('masyarakat.laporan.warga') }}'" class="mt-2 bg-white text-black font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-all text-base flex items-center justify-center gap-2 w-full">
+                Lihat laporan warga lainnya
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div class="flex items-center gap-4 mb-4">
             <a href="/masyarakat/pengaduan" class="p-2.5 bg-white rounded-lg transition-all duration-300 hover:bg-yellow-50 hover:shadow-md group">
@@ -208,7 +229,7 @@
                     throw new Error(errorMessages);
                 }
 
-                if (!fetchResponse.ok) {
+                if (!fetchResponse.ok && data.reason !== 'max_laporan') {
                     throw new Error(data.message || 'Terjadi kesalahan pada server');
                 }
 
@@ -220,12 +241,26 @@
                     localStorage.removeItem('capturedDeskripsi');
                     window.location.href = '/masyarakat/pengaduan/buat/1';
                 } else {
+                    // Tambahan: Cek jika laporan melebihi batas maksimal
+                    if (data.reason === 'max_laporan') {
+                        document.getElementById('maxLaporanModal').classList.remove('hidden');
+                        // Reset form state
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonContent;
+                        pengaduanForm.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
+                        isSubmitting = false;
+                        return;
+                    }
                     window.location.href = '/masyarakat/pengaduan/buat/1';
                 }
 
             } catch (error) {
+                // Jangan tampilkan alert jika error karena max_laporan (5 meter)
+                if (error.message && error.message.includes('5 meter')) {
+                    // Sudah ditangani modal, tidak perlu alert
+                    return;
+                }
                 console.error('Error:', error);
-
                 // Re-enable button and restore original text on error
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonContent;

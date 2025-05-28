@@ -302,37 +302,25 @@
 
                                 {{-- Tombol Interaksi untuk Laporan yang Sedang Diproses --}}
                                 @if($laporan->status == 'Di Proses')
-                                <div class="px-5 pb-5 pt-0">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex space-x-4">
-                                            <button class="like-btn flex items-center text-gray-500 hover:text-red-500 transition" data-liked="false">
-                                                <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
-                                                <span>0</span>
-                                            </button>
-                                            <button class="flex items-center text-gray-500 hover:text-blue-500 transition">
-                                                <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                </svg>
-                                                <span>0</span>
-                                            </button>
-                                        </div>
-                                        <a href="
-                                            @if($laporan->status == 'Menunggu')
-                                                {{ route('masyarakat.laporan.menunggu', $laporan->id) }}
-                                            @elseif($laporan->status == 'Di Proses' && $isMenungguVerif)
-                                                {{ route('masyarakat.laporan.proses.ditindaklanjuti', $laporan->id) }}
-                                            @elseif($laporan->status == 'Di Proses')
-                                                {{ route('masyarakat.laporan.proses.diselesaikan', $laporan->id) }}
-                                            @elseif($laporan->status == 'Selesai')
-                                                {{ route('masyarakat.laporan.selesai', $laporan->id) }}
-                                            @elseif($laporan->status == 'Ditolak')
-                                                {{ route('masyarakat.laporan.ditolak', $laporan->id) }}
-                                            @endif
-                                        " class="text-yellow-600 font-medium hover:text-yellow-700 transition-colors">Lihat Detail</a>
-                                    </div>
-                                </div>
+                                <div class="justify-start">                          <!-- Like and Comment Count Section -->
+        <div class="max-w-4xl mx-auto mb-4 flex items-center space-x-4">
+            <form action="{{ route('masyarakat.laporan.like', $laporan->id) }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="flex items-center space-x-1 text-gray-600 hover:text-blue-500 {{ $laporan->liked ? 'text-blue-600' : '' }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                    </svg>
+                    <span>{{ $laporan->likeCount }}</span>
+                </button>
+            </form>
+            <div class="flex items-center space-x-1 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>{{ $laporan->komentar->count() }}</span>
+            </div>
+        </div>
+    </div>
                                 @endif
                             </div>
                         @endforeach
@@ -575,8 +563,8 @@ function startGeoTracking() {
         if(!isMobile && isLocalhost) {
             console.log("Simulating location for desktop localhost");
             currentLocation = {
-                latitude:  -7.971848697947782,
-                longitude:  112.63734413826006,
+                latitude:  -7.970318672635089,
+                longitude:  112.63652874678952,
                 accuracy: 5
             };
             updateGeoDisplay(); // Panggil update setelah set lokasi

@@ -132,7 +132,7 @@
                             @if($laporan->status == 'Di Proses')
                                 {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
                             @elseif($laporan->status == 'Ditolak')
-                                Tidak Terselesaikan
+                                Ditolak
                             @else
                                 {{ $laporan->status }}
                             @endif

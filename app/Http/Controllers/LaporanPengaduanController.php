@@ -31,6 +31,33 @@ class LaporanPengaduanController extends Controller
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
 
+        // Ambil semua laporan dalam radius 5 meter (urutan waktu)
+        $laporanRadius = \App\Models\LaporanPengaduan::selectRaw('*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [$latitude, $longitude, $latitude])
+            ->having('distance', '<=', 5)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Ambil laporan aktif (Menunggu/Di Proses)
+        $laporanAktif = $laporanRadius->whereIn('status', ['Menunggu', 'Di Proses']);
+
+        if ($laporanAktif->count() >= 3) {
+            // Jika semua laporan radius 5m statusnya 'Selesai', izinkan laporan baru sebagai utama
+            $semuaSelesai = $laporanRadius->count() >= 3 && $laporanRadius->take(3)->every(function($lap) {
+                return $lap->status === 'Selesai';
+            });
+            if (!$semuaSelesai) {
+                return response()->json([
+                    'success' => false,
+                    'reason' => 'max_laporan',
+                    'message' => 'Sudah ada 3 laporan aktif dalam radius 5 meter.'
+                ], 200);
+            }
+        }
+
+        // Penentuan related_pengaduan_id
+        $laporanUtama = $laporanAktif->first();
+        $relatedId = $laporanUtama ? $laporanUtama->id : null;
+
         // Check for exact duplicate report by the same user at the same location within the last 5 seconds
         $exactDuplicate = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
             ->where('latitude', $latitude)
@@ -67,14 +94,6 @@ class LaporanPengaduanController extends Controller
         $masyarakatId = $masyarakat->id ?? null;
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
-
-        // 3. CARI LAPORAN UTAMA (pertama) di radius 5 meter
-        $laporanUtama = \App\Models\LaporanPengaduan::selectRaw('*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [$latitude, $longitude, $latitude])
-            ->having('distance', '<=', 5)
-            ->orderBy('created_at', 'asc')
-            ->first();
-
-        $relatedId = $laporanUtama ? $laporanUtama->id : null;
 
         // 4. SIMPAN LAPORAN BARU
         $path = $request->file('foto')->store('laporan', 'public');
@@ -170,6 +189,14 @@ class LaporanPengaduanController extends Controller
         $laporans = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Tambahkan data like dan komentar untuk setiap laporan
+        $laporans = $laporans->map(function($laporan) use ($user) {
+            $laporan->likeCount = \App\Models\LikeLaporan::where('pengaduan_id', $laporan->id)->count();
+            $laporan->liked = \App\Models\LikeLaporan::where('pengaduan_id', $laporan->id)->where('user_id', $user->id)->exists();
+            $laporan->komentar = \App\Models\KomentarLaporan::where('pengaduan_id', $laporan->id)->get();
+            return $laporan;
+        });
 
         return view('Dashboardstlhlogin.masyarakat.pengaduan.BuatLaporan1', compact('laporans'));
     }
@@ -1100,16 +1127,19 @@ class LaporanPengaduanController extends Controller
      */
     public function laporanPusat()
     {
-        // Ambil laporan yang di-escalate ke pusat dan statusnya Menunggu
+        // Ambil laporan utama (related_pengaduan_id = null) yang di-escalate ke pusat dan statusnya Menunggu
         $belumRespon = \App\Models\LaporanPengaduan::where('escalated_to_pusat', 1)
             ->where('status', 'Menunggu')
+            ->whereNull('related_pengaduan_id')
             ->get();
 
-        // Ambil laporan yang tracking terakhirnya "Tidak Terselesaikan"
+        // Ambil laporan utama (related_pengaduan_id = null) yang tracking terakhirnya "Tidak Terselesaikan" dan di-escalate ke pusat
         $trackingIds = \App\Models\TrackingLaporan::where('escalated_to_pusat', 1)
             ->where('status', 'Tidak Terselesaikan')
             ->pluck('pengaduan_id');
-        $tidakTerselesaikan = \App\Models\LaporanPengaduan::whereIn('id', $trackingIds)->get();
+        $tidakTerselesaikan = \App\Models\LaporanPengaduan::whereIn('id', $trackingIds)
+            ->whereNull('related_pengaduan_id')
+            ->get();
 
         // Gabungkan
         $laporans = $belumRespon->merge($tidakTerselesaikan);
@@ -1117,11 +1147,9 @@ class LaporanPengaduanController extends Controller
         // FILTER: Hapus laporan yang tracking terakhirnya sub_status == 'menunggu_verifikasi_admin'
         $laporans = $laporans->filter(function($laporan) {
             $lastTracking = $laporan->tracking->sortByDesc('created_at')->first();
-            // Hapus jika status "Tidak Terselesaikan" DAN sub_status terakhir "menunggu_verifikasi_admin"
             if ($laporan->status == 'Tidak Terselesaikan' && $lastTracking && $lastTracking->sub_status == 'menunggu_verifikasi_admin') {
                 return false;
             }
-            // Hapus juga jika sub_status terakhir "menunggu_verifikasi_admin" (opsional, jika ingin lebih strict)
             if ($lastTracking && $lastTracking->sub_status == 'menunggu_verifikasi_admin') {
                 return false;
             }
