@@ -32,12 +32,12 @@
             <!-- Menu Navigasi -->
             <div class="flex items-center ml-auto px-8">
                 <button id="hamburger" name="hamburger" type="button" class="block absolute right-4 lg:hidden">
-                    <span class="hamburger-line transition duration-300 ease-in-out origin-top-left"></span>
                     <span class="hamburger-line transition duration-300 ease-in-out"></span>
-                    <span class="hamburger-line transition duration-300 ease-in-out origin-bottom-left"></span>
+                    <span class="hamburger-line transition duration-300 ease-in-out"></span>
+                    <span class="hamburger-line transition duration-300 ease-in-out"></span>
                 </button>
 
-                <nav id="nav-menu" class="hidden absolute py-5 bg-white shadow-lg rounded-lg max-w-[250px] w-full right-4 top-full lg:block lg:static lg:bg-transparent lg:max-w-full lg:shadow-none lg:rounded-none">
+                <nav id="nav-menu" class="hidden fixed inset-x-0 top-[90px] z-40 py-5 bg-white shadow-lg w-full lg:block lg:static lg:bg-transparent lg:shadow-none">
                     <ul class="block lg:flex lg:items-center">
                         <!-- Grup Menu -->
                         <div class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-7 px-8">
@@ -72,7 +72,7 @@
                         </div>
 
                         <!-- Grup Auth -->
-                        <div class="flex items-center space-x-4 px-8 lg:px-4">
+                        <div class="flex flex-col items-start space-y-2 px-8 pl-16 lg:pl-0 lg:flex-row lg:items-center lg:space-y-0 lg:space-x-4 lg:px-4 mt-0">
                             <li>
                                 <a href="/login" class="text-base lg:text-[13px] font-bold py-2 flex text-merah hover:text-opacity-80">
                                     Logout

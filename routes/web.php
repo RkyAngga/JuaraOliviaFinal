@@ -3,7 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+// Hapus line ini: use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MasyarakatController;
 use App\Http\Controllers\LaporanPengaduanController;
@@ -35,9 +35,7 @@ Route::get('/register', function () {
     return view('auth.Register');
 })->name('register');
 
-Route::get('/forgot-password', function () {
-    return view('auth.ForgotPassword');
-})->name('password.request');
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 
 // Public Content Routes
 Route::get('/pengaduan', function () {
@@ -74,10 +72,11 @@ Route::get('/LaporanWarga', function () {
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/reset-password/{token}', function ($token) {
-    return view('auth.ResetPassword', ['token' => $token]);
-})->name('password.reset');
-Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+Route::get('/otp', [ForgotPasswordController::class, 'showOTPForm'])->name('otp.form');
+Route::post('/otp/verify', [ForgotPasswordController::class, 'verifyOTP'])->name('otp.verify');
+Route::post('/otp/resend', [ForgotPasswordController::class, 'resendOTP'])->name('otp.resend');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
