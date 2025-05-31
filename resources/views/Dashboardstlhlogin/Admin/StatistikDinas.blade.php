@@ -11,7 +11,7 @@
     </div>
     <p class="font-light mb-2">Penilaian Dinas terhadap penyelesaian Laporan tahun 2025</p>
     <div class="w-full h-1 bg-yellow-400 mb-4 sm:mb-6"></div>
-    
+
     <!-- Main Content Section -->
     <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8">
             <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
@@ -25,56 +25,55 @@
 
             <!-- Table dan Chart Container dengan Grid Responsif -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
-                <!-- Table Container -->
-                <div class="w-full overflow-x-auto bg-white p-4 rounded-lg shadow-sm">
-                    <div class="min-w-full overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No</th>
-                                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Dinas</th>
-                                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Grade</th>
-                                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Persentase</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($dinasList as $dinas)
-                                    @php
-                                        // Hitung Grade berdasarkan poin dinas
-                                        $grade = 'E'; // Default
-                                        if ($dinas->point >= 90) $grade = 'A';
-                                        elseif ($dinas->point >= 80) $grade = 'B';
-                                        elseif ($dinas->point >= 70) $grade = 'C';
-                                        elseif ($dinas->point >= 60) $grade = 'D';
-                                        // Presentase langsung dari poin, maksimal 100%
-                                        $percentage = min(100, $dinas->point);
+            <div class="w-full overflow-x-auto bg-white p-4 rounded-lg shadow-sm">
+    <div class="min-w-full overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Dinas</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Grade</th>
+                    <th class="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Persentase</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach($dinasList as $dinas)
+                    @php
+                        // Hitung Grade berdasarkan poin dinas
+                        $grade = 'E'; // Default
+                        if ($dinas->point >= 90) $grade = 'A';
+                        elseif ($dinas->point >= 80) $grade = 'B';
+                        elseif ($dinas->point >= 70) $grade = 'C';
+                        elseif ($dinas->point >= 60) $grade = 'D';
+                        // Presentase langsung dari poin, maksimal 100%
+                        $percentage = min(100, $dinas->point);
 
-                                        // Tentukan warna teks berdasarkan poin
-                                        $textColorClass = 'text-gray-900'; // Default
-                                        if ($dinas->point >= 199) $textColorClass = 'text-[#FEC23E]'; // >= 199 poin
-                                        elseif ($dinas->point >= 101) $textColorClass = 'text-[#EBDDCF]'; // 101 - 198 poin
-                                        elseif ($dinas->point >= 0) $textColorClass = 'text-[#FF8000]'; // 0 - 100 poin
-                                        // Catatan: Kelas Tailwind CSS arbitrer (#...) mungkin perlu dikonfigurasi di tailwind.config.js
-                                    @endphp
-                                    <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
-                                        <td class="py-4 px-6">{{ $loop->iteration }}</td>
-                                        <td class="py-4 px-6 font-medium {{ $textColorClass }}">{{ $dinas->username }}</td>
-                                        <td class="py-4 px-6 text-gray-600">{{ $grade }}</td>
-                                        <td class="py-4 px-6">
-                                            <div class="flex items-center space-x-4">
-                                                <div class="flex-1 bg-gray-200 rounded-full h-2.5 max-w-xs">
-                                                    <div class="bg-yellow-500 h-2.5 rounded-full transition-all duration-500"
-                                                         style="width: {{ $percentage }}%"></div>
-                                                </div>
-                                                <span class="text-sm font-semibold text-gray-700">{{ $percentage }}%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                        // Tentukan warna teks berdasarkan poin
+                        $textColorClass = 'text-gray-900'; // Default
+                        if ($dinas->point >= 199) $textColorClass = 'text-[#FEC23E]'; // >= 199 poin
+                        elseif ($dinas->point >= 101) $textColorClass = 'text-[#EBDDCF]'; // 101 - 198 poin
+                        elseif ($dinas->point >= 0) $textColorClass = 'text-[#FF8000]'; // 0 - 100 poin
+                        // Catatan: Kelas Tailwind CSS arbitrer (#...) mungkin perlu dikonfigurasi di tailwind.config.js
+                    @endphp
+                    <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                        <td class="py-4 px-6">{{ $loop->iteration }}</td>
+                        <td class="py-4 px-6 font-medium {{ $textColorClass }}">{{ $dinas->username }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ $grade }}</td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2.5 max-w-xs">
+                                    <div class="bg-yellow-500 h-2.5 rounded-full transition-all duration-500"
+                                         style="width: {{ $percentage }}%"></div>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-700">{{ $percentage }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
 
               <!-- Chart Container dengan Responsif Height -->
               <div class="w-full bg-white p-4 rounded-lg shadow-sm min-h-[300px] md:min-h-[400px] flex flex-col">
@@ -88,7 +87,7 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const ctx = document.getElementById('statistikChart').getContext('2d');
-                        
+
                         const chartConfig = {
                             type: 'doughnut',
                             data: {
@@ -149,9 +148,9 @@
                                 }
                             }
                         };
-                        
+
                         const chart = new Chart(ctx, chartConfig);
-                        
+
                         // Resize handler untuk responsivitas
                         window.addEventListener('resize', function() {
                             chart.options.plugins.legend.labels.boxWidth = window.innerWidth < 768 ? 10 : 12;
@@ -171,7 +170,7 @@
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const ctx = document.getElementById('statistikChart').getContext('2d');
-                    
+
                     const chartConfig = {
                         type: 'doughnut',
                         data: {
@@ -249,5 +248,23 @@
             </div>
         </div>
 </section>
+
+<style>
+    @media (max-width: 640px) {
+        table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            min-width: 100px;
+            padding: 8px;
+        }
+        .max-w-xs {
+            max-width: 150px;
+        }
+    }
+</style>
 
 @endsection

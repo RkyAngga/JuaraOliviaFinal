@@ -1,13 +1,33 @@
 @extends('Dashboardstlhlogin.Admin.Template.Template')
 
 @section('content')
-<div class="container mx-auto px-4">
-    <div class="flex flex-col items-center mb-2">
-        <h1 class="text-3xl font-bold text-hitam pt-4 mb-4">Pemberitahuan</h1>
-        <div class="w-30 h-1 bg-kuning rounded-full mb-6"></div>
-    </div>
+<div class="container mx-auto px-4 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-4 sm:mb-6 relative">
+            <!-- Left side: Back button -->
+            <div class="flex items-center gap-3">
+                <a href="/dinas/laporan/masyarakat" class="p-2 hover:bg-gray-100 rounded-lg transition-colors group z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 group-hover:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+            </div>
+            <!-- Center: Header Title -->
+            <div class="absolute left-0 right-0 flex justify-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Pemberitahuan</h2>
+            </div>
+            <!-- Right side: Spacer (optional, depending on layout needs) -->
+            <div class="flex items-center gap-3 invisible">
+                 <a href="#" class="p-2 hover:bg-gray-100 rounded-lg transition-colors group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 group-hover:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="w-full h-1 bg-yellow-400 mb-4 sm:mb-6"></div>
 
-    <div class="space-y-4">
+    <div class="space-y-4 flex-grow">
         <!-- Notifikasi Item -->
         @foreach($notifikasis as $notif)
             <div id="notif-{{ $notif->notifikasi_id }}"
@@ -21,7 +41,7 @@
                         <p class="text-sm text-hitam/70">{{ $notif->created_at->diffForHumans() }}</p>
                     </a>
                 </div>
-                <button onclick="dismissNotif({{ $notif->notifikasi_id }})" 
+                <button onclick="dismissNotif({{ $notif->notifikasi_id }})"
                         class="text-hitam hover:text-merah transition-colors p-2 rounded-full hover:bg-white/20">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />

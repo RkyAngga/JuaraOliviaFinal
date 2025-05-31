@@ -111,258 +111,320 @@
 </section>
 
 <script>
+// Tambahkan pengecekan perangkat di awal
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+if (!isMobile && !isLocalhost) {
+    alert('Fitur pengambilan foto hanya tersedia di perangkat mobile!');
+    window.location.href = '/dinas/laporan/step4/lanjutan/{{ $id }}';
+}
+
 let stream = null;
 let watchId = null;
 let currentLocation = null;
 let addressDetails = {};
-let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let capturedImageDataURL = null;
 
-// Deteksi lingkungan
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-const LAPORAN_ID = {{ $id }};
+function showLoading(message) {
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loading-detail').textContent = message;
+}
+function hideLoading() {
+    document.getElementById('loading').classList.add('hidden');
+}
 
 async function startApp() {
     try {
-        // Validasi HTTPS untuk mobile
+        showLoading('Memulai sistem...');
         if(!isLocalhost && window.location.protocol !== 'https:' && isMobile) {
             alert('Akses harus melalui HTTPS!');
             window.location.href = `https://${window.location.host}${window.location.pathname}`;
             return;
         }
-
-        showLoading('Memulai sistem...');
-
-        // 1. Cek kompatibilitas
-        if(!checkCompatibility()) return;
-
-        // 2. Minta izin
+        if(!checkCompatibility()) {
+            hideLoading();
+            return;
+        }
         await requestPermissions();
-
-        // 3. Inisialisasi kamera dan lokasi
         await Promise.all([startCamera(), startGeoTracking()]);
-
-        // Tampilkan UI
         hideLoading();
         document.getElementById('initialScreen').classList.add('hidden');
         document.getElementById('cameraSection').classList.remove('hidden');
-
     } catch (error) {
         hideLoading();
         alert(`Error: ${error.message}`);
     }
 }
-
 function checkCompatibility() {
     const errors = [];
-    if(!navigator.geolocation) errors.push("- Geolokasi tidak didukung");
-    if(!navigator.mediaDevices?.getUserMedia) errors.push("- Kamera tidak didukung");
-
+    if(!navigator.geolocation) errors.push('- Geolokasi tidak didukung');
+    if(!navigator.mediaDevices?.getUserMedia) errors.push('- Kamera tidak didukung');
     if(errors.length > 0) {
-        alert("Browser tidak kompatibel:\n" + errors.join("\n"));
+        alert('Browser tidak kompatibel:\n' + errors.join('\n'));
         return false;
     }
     return true;
 }
-
 async function requestPermissions() {
     try {
-        // Izin lokasi
         const geoStatus = await navigator.permissions.query({ name: 'geolocation' });
-        if(geoStatus.state === 'denied') throw new Error('Izin lokasi ditolak');
-
-        // Izin kamera
-        await navigator.mediaDevices.getUserMedia({ video: true });
-
+        if(geoStatus.state === 'prompt') {
+            await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+            });
+        } else if (geoStatus.state === 'denied') {
+            throw new Error('Izin lokasi ditolak. Aktifkan izin lokasi di pengaturan browser Anda.');
+        }
+        const camStatus = await navigator.permissions.query({ name: 'camera' });
+        if (camStatus.state === 'prompt') {
+            await navigator.mediaDevices.getUserMedia({ video: true });
+        } else if (camStatus.state === 'denied') {
+            throw new Error('Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser Anda.');
+        }
     } catch (error) {
         throw new Error(`Permasalahan izin: ${error.message}`);
     }
 }
-
 function startGeoTracking() {
     return new Promise((resolve, reject) => {
-        // Simulasi lokasi untuk desktop
-        if(!isMobile && isLocalhost) {
-            currentLocation = {
-                latitude: -7.955413234953242,
-                longitude: 112.61619107544553,
-                accuracy: 3
-            };
-            updateGeoDisplay();
-            resolve();
-            return;
-        }
-
+        showLoading('Mencari lokasi GPS...');
+        document.getElementById('geoStatus').innerHTML = `<span class='mr-2'>🌍</span>Mencari GPS...`;
+        let resolved = false;
+        const options = {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 20000
+        };
         watchId = navigator.geolocation.watchPosition(
             position => {
                 currentLocation = position.coords;
                 updateGeoDisplay();
-
-                if(currentLocation.accuracy <= 5) {
+                if (!addressDetails.jalan) {
+                    getAddressDetails();
+                }
+                if(currentLocation.accuracy <= 15 && !resolved) {
+                    resolved = true;
                     resolve();
+                } else {
+                    showLoading(`Meningkatkan akurasi GPS (${currentLocation.accuracy.toFixed(1)}m)...`);
                 }
             },
-            error => handleGeoError(error),
-            {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 30000
-            }
+            error => {
+                handleGeoError(error);
+                if (!resolved) reject(new Error(`Gagal mendapatkan lokasi: ${error.message}`));
+            },
+            options
         );
-    });
-}
-
-function updateGeoDisplay() {
-    // Update tampilan GPS
-    document.getElementById('geoStatus').innerHTML = `
-        🌍 Akurasi: ${currentLocation.accuracy.toFixed(1)}m
-        ${currentLocation.accuracy > 5 ? '⚠️' : '✅'}
-    `;
-
-    // Update koordinat
-    document.getElementById('geoDetails').innerHTML = `
-        Koordinat: <br>
-        ${currentLocation.latitude.toFixed(6)},
-        ${currentLocation.longitude.toFixed(6)}
-    `;
-
-    getAddressDetails();
-}
-
-async function getAddressDetails() {
-    try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&addressdetails=1`,
-            {
-                headers: {
-                    'User-Agent': 'LaporanApp/1.0 (contact@example.com)'
+        setTimeout(() => {
+            if (!resolved) {
+                if (currentLocation) {
+                    resolved = true;
+                    resolve();
+                } else {
+                    navigator.geolocation.clearWatch(watchId);
+                    reject(new Error('Timeout saat mencari lokasi GPS. Pastikan GPS aktif dan sinyal baik.'));
                 }
             }
-        );
-
-        const data = await response.json();
-        addressDetails = parseAddress(data.address);
-
-        document.getElementById('fullAddress').innerHTML = `
-            <div>Jalan: ${addressDetails.jalan}</div>
-            <div>Gang: ${addressDetails.gang}</div>
-            <div>Desa: ${addressDetails.desa}</div>
-            <div>Kec. ${addressDetails.kecamatan}</div>
-            <div>${addressDetails.kota}, ${addressDetails.provinsi}</div>
-        `;
-
-    } catch (error) {
-        console.error('Error alamat:', error);
+        }, options.timeout + 5000);
+    });
+}
+function updateGeoDisplay() {
+    if (!currentLocation) return;
+    const geoStatusElement = document.getElementById('geoStatus');
+    if (geoStatusElement) {
+        geoStatusElement.innerHTML = `🌍 Akurasi: ${currentLocation.accuracy.toFixed(1)}m ${currentLocation.accuracy > 10 ? '⚠️' : '✅'}`;
+    }
+    const geoDetailsElement = document.getElementById('geoDetails');
+    if (geoDetailsElement) {
+        geoDetailsElement.innerHTML = `Koordinat: <br>${currentLocation.latitude.toFixed(6)},${currentLocation.longitude.toFixed(6)}`;
     }
 }
-
+async function getAddressDetails() {
+    if (!currentLocation || !currentLocation.latitude || !currentLocation.longitude) {
+        const fullAddressElement = document.getElementById('fullAddress');
+        if (fullAddressElement) {
+            fullAddressElement.innerHTML = `<div>Gagal mendapatkan detail alamat (koordinat tidak ditemukan).</div>`;
+        }
+        return;
+    }
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&addressdetails=1&accept-language=id`,
+            { headers: { 'User-Agent': 'LaporanAppDinas/1.0 (juaraolivia@example.com)' } }
+        );
+        if (!response.ok) throw new Error(`Nominatim request failed with status ${response.status}`);
+        const data = await response.json();
+        if (data.error) throw new Error(`Nominatim error: ${data.error}`);
+        addressDetails = parseAddress(data.address);
+        const fullAddressElement = document.getElementById('fullAddress');
+        if (fullAddressElement) {
+            fullAddressElement.innerHTML = `
+                <div>${addressDetails.jalan ? `Jalan: ${addressDetails.jalan}` : ''}</div>
+                <div>${addressDetails.gang ? `Gang/Lingkungan: ${addressDetails.gang}` : ''}</div>
+                <div>${addressDetails.desa ? `Desa/Kel: ${addressDetails.desa}` : ''}</div>
+                <div>${addressDetails.kecamatan ? `Kec. ${addressDetails.kecamatan}` : ''}</div>
+                <div>${addressDetails.kota ? `${addressDetails.kota}` : ''}${addressDetails.provinsi ? `, ${addressDetails.provinsi}` : ''}</div>
+            `.replace(/<div>\s*<\/div>/g, '');
+        }
+    } catch (error) {
+        const fullAddressElement = document.getElementById('fullAddress');
+        if (fullAddressElement) {
+            fullAddressElement.innerHTML = `<div>Gagal mendapatkan detail alamat.</div>`;
+        }
+        addressDetails = { jalan: 'Tidak diketahui', gang: '', desa: '', kecamatan: '', kota: '', provinsi: '' };
+    }
+}
 function parseAddress(address) {
+    if (!address) return { jalan: 'Tidak diketahui', gang: '', desa: '', kecamatan: '', kota: '', provinsi: '' };
+    let kecamatan = address.suburb || address.county || address.city_district || '';
+    const kotaKab = address.city || address.town || '';
+    if (kecamatan === kotaKab) {
+        if (address.suburb === kotaKab) {
+            kecamatan = address.county || address.city_district || '';
+        } else if (address.county === kotaKab) {
+            kecamatan = address.suburb || address.city_district || '';
+        }
+        if (kecamatan === kotaKab) kecamatan = '';
+    }
+    let desa = address.village || address.hamlet || '';
+    if (!desa && address.suburb && address.suburb !== kecamatan) desa = address.suburb;
+    if (!desa && address.neighbourhood) desa = address.neighbourhood;
+    let gang = (address.neighbourhood && address.neighbourhood !== desa) ? address.neighbourhood : '';
     return {
-        jalan: address.road || 'Tidak diketahui',
-        gang: address.neighbourhood || '',
-        desa: address.village || address.hamlet || '',
-        kecamatan: address.suburb || address.county || '',
-        kota: address.city || address.town || '',
+        jalan: address.road || '',
+        gang: gang,
+        desa: desa,
+        kecamatan: kecamatan,
+        kota: kotaKab,
         provinsi: address.state || ''
     };
 }
-
 async function startCamera() {
+    showLoading('Mengaktifkan kamera...');
     try {
         const constraints = {
             video: {
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
-                facingMode: isMobile ? 'environment' : 'user'
+                facingMode: isMobile ? { exact: 'environment' } : 'user'
             }
         };
-
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = document.getElementById('camera');
-
-        // Optimasi untuk iOS
         video.playsInline = true;
         video.muted = true;
-
         video.srcObject = stream;
         await video.play();
-
     } catch (error) {
-        throw new Error(`Gagal mengakses kamera: ${error.message}`);
+        if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+            try {
+                const fallbackConstraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 } } };
+                stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+                const video = document.getElementById('camera');
+                video.playsInline = true;
+                video.muted = true;
+                video.srcObject = stream;
+                await video.play();
+            } catch (fallbackError) {
+                throw new Error(`Gagal mengakses kamera: ${fallbackError.message}`);
+            }
+        } else {
+            throw new Error(`Gagal mengakses kamera: ${error.message}`);
+        }
     }
 }
-
 function capturePhoto() {
+    if (!currentLocation || currentLocation.accuracy > 50) {
+        alert(`Lokasi GPS belum akurat (${currentLocation ? currentLocation.accuracy.toFixed(1) + 'm' : 'tidak ditemukan'}). Tunggu sebentar atau coba lagi di tempat dengan sinyal lebih baik.`);
+        return;
+    }
     const video = document.getElementById('camera');
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
+    const context = canvas.getContext('2d');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Watermark
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(20, canvas.height - 140, canvas.width - 40, 120);
-
-    ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`🕒 ${new Date().toLocaleString()}`, 30, canvas.height - 130);
-    ctx.fillText(`📍 ${addressDetails.jalan}`, 30, canvas.height - 110);
-    ctx.fillText(`🏘 ${addressDetails.desa}, ${addressDetails.kecamatan}`, 30, canvas.height - 90);
-    ctx.fillText(`🌐 ${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)}`, 30, canvas.height - 70);
-
-    // Tampilkan preview
-    capturedImageDataURL = canvas.toDataURL('image/jpeg');
-    document.getElementById('capturedImage').src = capturedImageDataURL;
-
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const now = new Date();
+    const timestamp = now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'medium', hour12: false }).replace(/\./g, '/');
+    const gpsText = `Lat: ${currentLocation.latitude.toFixed(6)}, Lon: ${currentLocation.longitude.toFixed(6)}, Acc: ${currentLocation.accuracy.toFixed(1)}m`;
+    let addressLines = [];
+    if (addressDetails.jalan) addressLines.push(addressDetails.jalan);
+    let line2 = [];
+    if (addressDetails.desa) line2.push(`Desa/Kel: ${addressDetails.desa}`);
+    if (addressDetails.kecamatan) line2.push(`Kec: ${addressDetails.kecamatan}`);
+    if (line2.length > 0) addressLines.push(line2.join(', '));
+    let line3 = [];
+    if (addressDetails.kota) line3.push(addressDetails.kota);
+    if (addressDetails.provinsi) line3.push(addressDetails.provinsi);
+    if (line3.length > 0) addressLines.push(line3.join(', '));
+    const fontSize = Math.max(12, Math.min(16, Math.round(canvas.width / 60)));
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    const textPadding = fontSize * 0.4;
+    const lineHeight = fontSize * 1.3;
+    const bottomMargin = 10;
+    const totalLines = addressLines.length + 2;
+    const backgroundHeight = (lineHeight * totalLines) + (textPadding * 1.5);
+    const startY = canvas.height - backgroundHeight - bottomMargin;
+    let maxWidth = 0;
+    [...addressLines, gpsText, timestamp].forEach(line => {
+        const lineWidth = context.measureText(line).width;
+        if (lineWidth > maxWidth) {
+            maxWidth = lineWidth;
+        }
+    });
+    const backgroundWidth = maxWidth + (textPadding * 2);
+    context.fillRect(
+        textPadding,
+        startY,
+        backgroundWidth,
+        backgroundHeight
+    );
+    context.fillStyle = 'white';
+    let currentY = startY + lineHeight;
+    addressLines.forEach(line => {
+        context.fillText(line, textPadding * 2, currentY);
+        currentY += lineHeight;
+    });
+    context.fillText(gpsText, textPadding * 2, currentY);
+    currentY += lineHeight;
+    context.fillText(timestamp, textPadding * 2, currentY);
+    capturedImageDataURL = canvas.toDataURL('image/jpeg', 0.9);
+    const capturedImageElement = document.getElementById('capturedImage');
+    capturedImageElement.src = capturedImageDataURL;
+    updateGeoDisplay();
     document.getElementById('cameraSection').classList.add('hidden');
     document.getElementById('reportForm').classList.remove('hidden');
-
-    const now = new Date();
-    const waktuFoto = now.getFullYear() + '-' +
-        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-        String(now.getDate()).padStart(2, '0') + ' ' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0') + ':' +
-        String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('waktu_foto_input').value = waktuFoto;
-    document.getElementById('alamat_foto_input').value = document.getElementById('fullAddress').innerText;
 }
-
 function handleGeoError(error) {
-    let message = 'Error geolokasi: ';
+    let message = 'Gagal mendapatkan lokasi: ';
     switch(error.code) {
         case error.PERMISSION_DENIED:
-            message += "Izin ditolak";
+            message += 'Izin lokasi ditolak.';
             break;
         case error.POSITION_UNAVAILABLE:
-            message += "Lokasi tidak tersedia";
+            message += 'Informasi lokasi tidak tersedia.';
             break;
         case error.TIMEOUT:
-            message += "Timeout";
+            message += 'Timeout saat mencari lokasi.';
+            break;
+        default:
+            message += `Error tidak diketahui (${error.message}).`;
             break;
     }
-    alert(message);
+    const geoStatusElement = document.getElementById('geoStatus');
+    if (geoStatusElement) {
+        geoStatusElement.innerHTML = `<span class='mr-2'>⚠️</span> ${message}`;
+        geoStatusElement.classList.add('text-red-400');
+    }
 }
-
-// Fungsi bantuan
-function showLoading(message) {
-    document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('loading-detail').textContent = message;
-}
-
-function hideLoading() {
-    document.getElementById('loading').classList.add('hidden');
-}
-
 function retakePhoto() {
+    capturedImageDataURL = null;
+    document.getElementById('capturedImage').src = '';
     document.getElementById('reportForm').classList.add('hidden');
-    startApp();
+    document.getElementById('cameraSection').classList.remove('hidden');
 }
-
 function submitReport() {
     if (!capturedImageDataURL || !currentLocation) {
         alert('Data gambar atau lokasi tidak lengkap. Silakan ambil foto ulang.');
@@ -377,12 +439,10 @@ function submitReport() {
         return new File([u8arr], filename, {type:mime});
     }
     var file = dataURLtoFile(capturedImageDataURL, 'penyelesaian.jpg');
-    console.log(file);
     var formData = new FormData();
     formData.append('foto_penyelesaian', file);
-    formData.append('waktu_foto', document.getElementById('waktu_foto_input').value);
-    formData.append('alamat_foto', document.getElementById('alamat_foto_input').value);
-
+    formData.append('waktu_foto', new Date().toISOString());
+    formData.append('alamat_foto', document.getElementById('fullAddress').innerText);
     fetch("{{ route('dinas.laporan.uploadFotoPenyelesaian', $id) }}", {
         method: 'POST',
         headers: {
@@ -400,14 +460,10 @@ function submitReport() {
     })
     .catch(() => alert('Gagal upload foto!'));
 }
-
-function closeCamera() {
-    if(stream) stream.getTracks().forEach(track => track.stop());
-    if(watchId) navigator.geolocation.clearWatch(watchId);
-    document.getElementById('initialScreen').classList.remove('hidden');
-    document.getElementById('cameraSection').classList.add('hidden');
-    document.getElementById('reportForm').classList.add('hidden');
-}
+window.addEventListener('beforeunload', () => {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+});
 </script>
 
 @endsection

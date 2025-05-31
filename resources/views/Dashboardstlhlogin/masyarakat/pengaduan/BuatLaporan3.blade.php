@@ -234,11 +234,12 @@
                 }
 
                 if (data.success) {
-                    localStorage.removeItem('capturedImageData');
-                    localStorage.removeItem('capturedLatitude');
-                    localStorage.removeItem('capturedLongitude');
-                    localStorage.removeItem('capturedAlamat');
-                    localStorage.removeItem('capturedDeskripsi');
+                    // Jangan hapus data koordinat/alamat dari localStorage agar user bisa membuat laporan baru tanpa refresh
+                    // localStorage.removeItem('capturedImageData');
+                    // localStorage.removeItem('capturedLatitude');
+                    // localStorage.removeItem('capturedLongitude');
+                    // localStorage.removeItem('capturedAlamat');
+                    // localStorage.removeItem('capturedDeskripsi');
                     window.location.href = '/masyarakat/pengaduan/buat/1';
                 } else {
                     // Tambahan: Cek jika laporan melebihi batas maksimal

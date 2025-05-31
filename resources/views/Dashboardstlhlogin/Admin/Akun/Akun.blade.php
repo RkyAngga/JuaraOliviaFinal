@@ -16,14 +16,44 @@
             <!-- Search and Filter Section yang lebih modern -->
             <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                 <!-- Search Bar dengan animasi focus -->
-                <div class="relative w-full md:w-140 group">
-                    <input type="text" id="searchInput" placeholder="Cari nama atau username..." 
+                <div class=" bisa relative w-full md:w-140 group">
+                    <input type="text" id="searchInput" placeholder="Cari nama atau username..."
                         class="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-kuning focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm">
                     <svg class="absolute left-3 top-3 h-5 w-5 text-gray-400 group-hover:text-kuning transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
 
+                <!-- Role Filter Dropdown -->
+                <div class="relative">
+                    <select id="roleFilter" class="w-full md:w-48 pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-kuning focus:border-transparent appearance-none bg-white">
+                        <option value="">Semua Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="dinas">Dinas</option>
+                        <option value="pemerintahpusat">Pemerintah Pusat</option>
+                        <option value="masyarakat">Masyarakat</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="relative">
+                    <select id="sortBy" class="w-full md:w-48 pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-kuning focus:border-transparent appearance-none bg-white">
+                        <option value="newest">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                        <option value="name_asc">Nama (A-Z)</option>
+                        <option value="name_desc">Nama (Z-A)</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -34,65 +64,69 @@
     </div>
 
     <!-- Tabel Data Role dengan desain modern -->
-    <div class="overflow-hidden bg-white rounded-xl shadow-lg border border-gray-100">
+    <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-100">
         <table class="min-w-full divide-y divide-gray-200">
             <thead>
                 <tr class="bg-gradient-to-r from-kuning to-yellow-400">
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">No</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">Nama</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">Username</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">Password</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">Role</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold text-hitam">Tanggal Dibuat</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">No</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">Nama</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">Username</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">Password</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">Role</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-hitam whitespace-nowrap">Tanggal Dibuat</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 bg-white">
                 @forelse($users as $index => $user)
                     <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $index + 1 }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $user->nama_lengkap }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $user->username }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">********</td>
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ $index + 1 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">{{ $user->nama_lengkap }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $user->username }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">********</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
                             @if($user->role === 'admin')
-                                <span class="px-4 py-1.5 text-sm font-medium text-red-700 bg-red-100 rounded-full inline-flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full inline-flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                                     </svg>
                                     Admin
                                 </span>
                             @elseif($user->role === 'dinas')
-                                <a href="{{ route('admin.akun.dinas.edit', $user->id) }}" class="inline-block align-middle mr-1" title="Edit Akun Dinas">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 hover:text-kuning inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m2-2l-6 6m2-2l6-6" />
-                                    </svg>
-                                </a>
-                                <span class="px-4 py-1.5 text-sm font-medium text-green-600 bg-green-100 rounded-full">Dinas</span>
+                                <div class="flex items-center space-x-2">
+                                    <a href="{{ route('admin.akun.dinas.edit', $user->id) }}" class="inline-block" title="Edit Akun Dinas">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 hover:text-kuning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m2-2l-6 6m2-2l6-6" />
+                                        </svg>
+                                    </a>
+                                    <span class="px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">Dinas</span>
+                                </div>
                             @elseif($user->role === 'pemerintahpusat')
-                                <a href="{{ route('admin.akun.pusat.edit', $user->id) }}" class="inline-block align-middle mr-1" title="Edit Akun Pusat">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 hover:text-kuning inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m2-2l-6 6m2-2l6-6" />
-                                    </svg>
-                                </a>
-                                <span class="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">Pemerintah Pusat</span>
+                                <div class="flex items-center space-x-2">
+                                    <a href="{{ route('admin.akun.pusat.edit', $user->id) }}" class="inline-block" title="Edit Akun Pusat">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 hover:text-kuning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m2-2l-6 6m2-2l6-6" />
+                                        </svg>
+                                    </a>
+                                    <span class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full whitespace-nowrap">Pemerintah Pusat</span>
+                                </div>
                             @else
-                                <span class="px-4 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-full inline-flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <span class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full inline-flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                     </svg>
                                     {{ ucfirst($user->role) }}
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $user->created_at->format('d/m/Y H:i') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-500 bg-gray-50">
+                            <svg class="mx-auto h-10 w-10 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                             </svg>
-                            <p class="text-sm font-medium">Tidak ada data akun</p>
+                            <p class="text-xs font-medium">Tidak ada data akun</p>
                         </td>
                     </tr>
                 @endforelse
@@ -141,7 +175,7 @@
     .filter-tag {
         animation: slideIn 0.3s ease-out;
     }
-    
+
     @keyframes slideIn {
         from {
             opacity: 0;
@@ -207,25 +241,27 @@ modal.addEventListener('click', (e) => {
     }
 });
 
-// Search functionality dengan debounce
 function filterTable() {
     const searchTerm = searchInput.value.toLowerCase();
-    const rows = document.querySelectorAll('tbody tr');
+    const selectedRole = roleFilter.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr:not([class*="text-center"])'); // Exclude empty state row
 
     rows.forEach(row => {
         const nama = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
         const username = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-        
+        // Extract role from the span or div inside the 5th column
+        const roleElement = row.querySelector('td:nth-child(5) span, td:nth-child(5) div span:last-child');
+        const role = roleElement ? roleElement.textContent.toLowerCase() : '';
+
         const matchesSearch = nama.includes(searchTerm) || username.includes(searchTerm);
-        
-        if (matchesSearch) {
+        const matchesRole = selectedRole === '' || role.includes(selectedRole);
+
+        if (matchesSearch && matchesRole) {
             row.classList.remove('hidden');
-            // Highlight matching text
             if (searchTerm) {
                 highlightText(row.querySelector('td:nth-child(2)'), searchTerm);
                 highlightText(row.querySelector('td:nth-child(3)'), searchTerm);
             } else {
-                // Remove highlighting if search is empty
                 row.querySelector('td:nth-child(2)').innerHTML = nama;
                 row.querySelector('td:nth-child(3)').innerHTML = username;
             }
@@ -241,7 +277,7 @@ function highlightText(element, searchTerm) {
     const originalText = element.textContent;
     const lowerText = originalText.toLowerCase();
     const index = lowerText.indexOf(searchTerm);
-    
+
     if (index >= 0) {
         const before = originalText.slice(0, index);
         const match = originalText.slice(index, index + searchTerm.length);
@@ -251,9 +287,9 @@ function highlightText(element, searchTerm) {
 }
 
 function updateEmptyState() {
-    const visibleRows = document.querySelectorAll('tbody tr:not(.hidden)');
+    const visibleRows = document.querySelectorAll('tbody tr:not(.hidden):not([class*="text-center"])');
     const emptyState = document.querySelector('tbody tr td[colspan="6"]')?.parentElement;
-    
+
     if (visibleRows.length === 0) {
         if (!emptyState) {
             const tbody = document.querySelector('tbody');
@@ -273,6 +309,41 @@ function updateEmptyState() {
     }
 }
 
+function sortTable() {
+    const sortValue = sortBy.value;
+    const tbody = document.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr:not([class*="text-center"])')); // Exclude empty state row
+
+    rows.sort((a, b) => {
+        if (sortValue === 'newest') {
+            const dateA = new Date(a.querySelector('td:nth-child(6)').textContent.split(' ').join('/')); // Adjust date format
+            const dateB = new Date(b.querySelector('td:nth-child(6)').textContent.split(' ').join('/'));
+            return dateB - dateA;
+        } else if (sortValue === 'oldest') {
+            const dateA = new Date(a.querySelector('td:nth-child(6)').textContent.split(' ').join('/'));
+            const dateB = new Date(b.querySelector('td:nth-child(6)').textContent.split(' ').join('/'));
+            return dateA - dateB;
+        } else if (sortValue === 'name_asc') {
+            const nameA = a.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const nameB = b.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            return nameA.localeCompare(nameB);
+        } else if (sortValue === 'name_desc') {
+            const nameA = a.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const nameB = b.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            return nameB.localeCompare(nameA);
+        }
+    });
+
+    // Clear tbody and re-append sorted rows
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+    rows.forEach(row => tbody.appendChild(row));
+
+    // Re-apply filters after sorting
+    filterTable();
+}
+
 // Event listener untuk pencarian dengan debounce
 let searchTimeout;
 searchInput.addEventListener('input', () => {
@@ -290,13 +361,14 @@ roleFilter.addEventListener('change', () => {
 });
 
 // Sort functionality
-sortBy.addEventListener('change', function() {
-    this.form.submit();
+sortBy.addEventListener('change', () => {
+    sortTable();
+    updateActiveFilters();
 });
 
 // Initialize filters
 filterTable();
 updateActiveFilters();
 </script>
-</style>
+
 @endsection

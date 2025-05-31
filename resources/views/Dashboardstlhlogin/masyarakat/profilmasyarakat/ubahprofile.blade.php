@@ -39,6 +39,11 @@
                     </ul>
                 </div>
                 @endif
+                @if($errors->has('foto_profil'))
+                <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                    {{ $errors->first('foto_profil') }}
+                </div>
+                @endif
 
                 <!-- Photo Upload Section -->
                 <div class="flex flex-col items-center mb-8 p-6 bg-gray-50 rounded-xl">
@@ -59,7 +64,7 @@
                             </label>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-600">Klik untuk mengganti foto profil (Maks. 2MB)</p>
+                    <p class="text-sm text-gray-600">Klik untuk mengganti foto profil (Maks. 5MB)</p>
                 </div>
 
                 <!-- Form Sections -->
@@ -170,8 +175,19 @@
     document.getElementById('foto_profil').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert("Ukuran foto maksimal 2 MB.");
+            if (file.size === 0) {
+                alert("File foto tidak valid atau corrupt. Silakan pilih ulang dari galeri atau kamera.");
+                e.target.value = "";
+                return;
+            }
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
+            if (!allowedTypes.includes(file.type)) {
+                alert("Format foto tidak didukung. Pilih file JPG, PNG, atau GIF.");
+                e.target.value = "";
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Ukuran foto maksimal 5 MB.");
                 e.target.value = "";
                 return;
             }
@@ -198,5 +214,29 @@
             btn.querySelector('svg').classList.remove('text-blue-500');
         }
     }
+
+    // Tambahan: Cek file sebelum submit form (khusus mobile)
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var fileInput = document.getElementById('foto_profil');
+        if (fileInput && fileInput.files.length > 0) {
+            var file = fileInput.files[0];
+            if (file.size === 0) {
+                alert('File foto tidak valid (size 0). Silakan pilih ulang dari galeri atau kamera.');
+                e.preventDefault();
+                return false;
+            }
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
+            if (!allowedTypes.includes(file.type)) {
+                alert("Format foto tidak didukung. Pilih file JPG, PNG, atau GIF.");
+                e.preventDefault();
+                return false;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Ukuran foto maksimal 5 MB.");
+                e.preventDefault();
+                return false;
+            }
+        }
+    });
 </script>
 @endsection

@@ -96,7 +96,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (marker.status === "Menunggu") {
                             trackingUrl = `/masyarakat/laporan/menunggu/${marker.id}`;
                         } else if (marker.status === "Di Proses") {
-                            if (marker.sub_status === "menunggu_verifikasi_admin") {
+                            if (
+                                marker.sub_status ===
+                                "menunggu_verifikasi_admin"
+                            ) {
                                 trackingUrl = `/masyarakat/laporan/proses/ditindaklanjuti/${marker.id}`;
                             } else {
                                 trackingUrl = `/masyarakat/laporan/proses/diselesaikan/${marker.id}`;
@@ -115,7 +118,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         <br>
                         <a href="${trackingUrl}" class="text-blue-500 underline" target="_blank">Tracking Laporan</a>
                         &nbsp;|&nbsp;
-                        <a href="https://www.google.com/maps?q=${marker.latitude},${marker.longitude}" target="_blank" title="Lihat di Google Maps">
+                        <a href="https://www.google.com/maps?q=${
+                            marker.latitude
+                        },${
+                        marker.longitude
+                    }" target="_blank" title="Lihat di Google Maps">
                             <svg xmlns="http://www.w3.org/2000/svg" style="display:inline" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="green">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -154,35 +161,39 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch((error) => console.error("Error loading markers:", error));
 
         // Setelah marker laporan ditambahkan, tambahkan marker dinas
-        fetch('/api/marker-dinas')
-            .then(response => response.json())
-            .then(dinas => {
+        fetch("/api/marker-dinas")
+            .then((response) => response.json())
+            .then((dinas) => {
                 if (dinas && dinas.latitude && dinas.longitude) {
                     var dinasIcon = L.icon({
-                        iconUrl: '/img/icon/dinas.svg',
+                        iconUrl: "/img/icon/dinas.svg",
                         iconSize: [32, 48],
                         iconAnchor: [16, 48],
-                        popupAnchor: [0, -48]
+                        popupAnchor: [0, -48],
                     });
                     var dinasPopup = `<b>DINAS</b><br>Latitude: ${dinas.latitude}<br>Longitude: ${dinas.longitude}`;
-                    L.marker([dinas.latitude, dinas.longitude], { icon: dinasIcon })
+                    L.marker([dinas.latitude, dinas.longitude], {
+                        icon: dinasIcon,
+                    })
                         .addTo(map)
                         .bindPopup(dinasPopup);
                 }
             });
         // Tambahkan marker pusat
-        fetch('/api/marker-pusat')
-            .then(response => response.json())
-            .then(pusat => {
+        fetch("/api/marker-pusat")
+            .then((response) => response.json())
+            .then((pusat) => {
                 if (pusat && pusat.latitude && pusat.longitude) {
                     var pusatIcon = L.icon({
-                        iconUrl: '/img/icon/pemkot.svg',
+                        iconUrl: "/img/icon/pemkot.svg",
                         iconSize: [32, 48],
                         iconAnchor: [16, 48],
-                        popupAnchor: [0, -48]
+                        popupAnchor: [0, -48],
                     });
                     var pusatPopup = `<b>PEMERINTAH PUSAT</b><br>Latitude: ${pusat.latitude}<br>Longitude: ${pusat.longitude}`;
-                    L.marker([pusat.latitude, pusat.longitude], { icon: pusatIcon })
+                    L.marker([pusat.latitude, pusat.longitude], {
+                        icon: pusatIcon,
+                    })
                         .addTo(map)
                         .bindPopup(pusatPopup);
                 }
@@ -303,7 +314,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 "deskripsi",
                 document.getElementById("deskripsi").value
             );
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            formData.append(
+                "_token",
+                document.querySelector('meta[name="csrf-token"]').content
+            );
 
             // Debug: cek field
             console.log([...formData.entries()]);
@@ -311,20 +325,25 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(this.action, {
                 method: "POST",
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
                 },
                 body: formData,
             })
                 .then((res) => {
-                    const contentType = res.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
+                    const contentType = res.headers.get("content-type");
+                    if (
+                        !contentType ||
+                        !contentType.includes("application/json")
+                    ) {
                         if (res.redirected) {
                             window.location.href = res.url;
                             return;
                         }
-                        throw new Error('Server mengirim response tidak valid');
+                        throw new Error("Server mengirim response tidak valid");
                     }
                     return res.json();
                 })
@@ -338,9 +357,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 })
                 .catch((err) => {
-                    if (err.message.includes('Unauthorized') || err.message.includes('session')) {
-                        alert('Sesi Anda telah berakhir. Silakan login kembali.');
-                        window.location.href = '/login';
+                    if (
+                        err.message.includes("Unauthorized") ||
+                        err.message.includes("session")
+                    ) {
+                        alert(
+                            "Sesi Anda telah berakhir. Silakan login kembali."
+                        );
+                        window.location.href = "/login";
                         return;
                     }
                     alert("Terjadi kesalahan! " + err.message);

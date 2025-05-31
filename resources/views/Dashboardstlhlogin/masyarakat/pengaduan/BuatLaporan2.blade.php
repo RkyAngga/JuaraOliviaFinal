@@ -50,11 +50,11 @@
                         {{-- Enhanced Address Field --}}
                         <div class="space-y-3">
                             <label for="alamat" class="block text-base font-semibold text-gray-800">Edit Alamat Laporan <span class="text-red-500 text-sm">*</span></label>
-                            <textarea 
-                                id="alamat" 
-                                name="alamat" 
-                                placeholder="Memuat alamat otomatis..." 
-                                class="w-full p-4 border border-gray-200 rounded-lg resize-none bg-gray-50 focus:bg-white focus:border-yellow-400 focus:ring focus:ring-yellow-100 transition-all duration-300 text-gray-700" 
+                            <textarea
+                                id="alamat"
+                                name="alamat"
+                                placeholder="Memuat alamat otomatis..."
+                                class="w-full p-4 border border-gray-200 rounded-lg resize-none bg-gray-50 focus:bg-white focus:border-yellow-400 focus:ring focus:ring-yellow-100 transition-all duration-300 text-gray-700"
                                 rows="3"
                             ></textarea>
                             <p class="text-sm text-gray-500 italic">Alamat diisi otomatis berdasarkan lokasi foto. Anda bisa mengeditnya jika perlu.</p>
@@ -63,11 +63,11 @@
                         {{-- Enhanced Description Field --}}
                         <div class="space-y-3">
                             <label for="deskripsi" class="block text-base font-semibold text-gray-800">Detail Permasalahan <span class="text-red-500 text-sm">*</span></label>
-                            <textarea 
-                                id="deskripsi" 
-                                name="deskripsi" 
-                                placeholder="Contoh: Jalan rusak berlubang sangat parah..." 
-                                class="w-full p-4 border border-gray-200 rounded-lg resize-none bg-gray-50 focus:bg-white focus:border-yellow-400 focus:ring focus:ring-yellow-100 transition-all duration-300 text-gray-700" 
+                            <textarea
+                                id="deskripsi"
+                                name="deskripsi"
+                                placeholder="Contoh: Jalan rusak berlubang sangat parah..."
+                                class="w-full p-4 border border-gray-200 rounded-lg resize-none bg-gray-50 focus:bg-white focus:border-yellow-400 focus:ring focus:ring-yellow-100 transition-all duration-300 text-gray-700"
                                 rows="4"
                             ></textarea>
                         </div>
@@ -102,58 +102,64 @@
 
         // Ambil data dari localStorage
         const capturedImageData = localStorage.getItem('capturedImageData');
-        const capturedLatitude = localStorage.getItem('capturedLatitude'); // <-- Mengambil Latitude dari penyimpanan
-        const capturedLongitude = localStorage.getItem('capturedLongitude'); // <-- Mengambil Longitude dari penyimpanan
+        const capturedLatitude = localStorage.getItem('capturedLatitude');
+        const capturedLongitude = localStorage.getItem('capturedLongitude');
 
         // Tampilkan Gambar
         if (capturedImageData) {
             previewImage.src = capturedImageData;
-            imageDataInput.value = capturedImageData; // Tetap simpan data gambar di input hidden
+            imageDataInput.value = capturedImageData;
         } else {
             console.log('Tidak ada data gambar ditemukan di localStorage.');
             previewImage.alt = 'Tidak ada preview gambar';
-
         }
 
-        // Isi Latitude dan Longitude (dan coba ambil alamat)
-        if (capturedLatitude && capturedLongitude) {
-            latitudeInput.value = capturedLatitude;
-            longitudeInput.value = capturedLongitude;
-            // Panggil fungsi untuk mengambil alamat berdasarkan koordinat yang disimpan
-            fetchAddressFromCoordinates(capturedLatitude, capturedLongitude); // <-- Mengambil alamat sesuai koordinat foto
-        } else {
-            alamatTextarea.placeholder = 'Koordinat lokasi tidak ditemukan. Isi alamat manual.';
-            console.log('Koordinat (latitude/longitude) tidak ditemukan di localStorage.');
+        // Debug koordinat
+        console.log('Latitude:', capturedLatitude, 'Longitude:', capturedLongitude);
+
+        // Cek validitas koordinat
+        if (!capturedLatitude || !capturedLongitude || isNaN(Number(capturedLatitude)) || isNaN(Number(capturedLongitude))) {
+            alamatTextarea.placeholder = 'Koordinat tidak valid. Silakan ambil foto ulang.';
+            alert('Koordinat tidak valid. Silakan ambil foto ulang.');
+            window.location.href = '/masyarakat/pengaduan/buat/1';
+            return;
         }
+
+        latitudeInput.value = capturedLatitude;
+        longitudeInput.value = capturedLongitude;
+        fetchAddressFromCoordinates(capturedLatitude, capturedLongitude);
     });
 
     // Fungsi untuk mengambil alamat dari koordinat menggunakan Nominatim API
     async function fetchAddressFromCoordinates(lat, lon) {
         const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
         const alamatTextarea = document.getElementById('alamat');
+        if (!lat || !lon) {
+            alamatTextarea.value = '';
+            alamatTextarea.placeholder = 'Koordinat tidak valid. Silakan isi alamat manual.';
+            return;
+        }
         alamatTextarea.placeholder = 'Mencari alamat...'; // Update placeholder
-
         try {
             const response = await fetch(apiUrl, {
                 headers: {
                     'Accept': 'application/json',
-                    'Accept-Language': 'id-ID,id;q=0.9' // Request bahasa Indonesia jika tersedia
+                    'Accept-Language': 'id-ID,id;q=0.9'
                 }
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-
             if (data && data.display_name) {
-                alamatTextarea.value = data.display_name; // <-- Mengisi textarea dengan alamat dari API
+                alamatTextarea.value = data.display_name;
             } else {
-                alamatTextarea.value = ''; // Kosongkan jika tidak ditemukan
+                alamatTextarea.value = '';
                 alamatTextarea.placeholder = 'Alamat tidak ditemukan. Silakan isi manual.';
                 console.warn('Tidak dapat menemukan alamat untuk koordinat:', lat, lon, data);
             }
         } catch (error) {
-            alamatTextarea.value = ''; // Kosongkan jika error
+            alamatTextarea.value = '';
             alamatTextarea.placeholder = 'Gagal mengambil alamat. Silakan isi manual.';
             console.error('Error fetching address:', error);
         }

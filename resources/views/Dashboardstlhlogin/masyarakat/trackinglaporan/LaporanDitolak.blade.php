@@ -8,7 +8,7 @@
         <!-- Header Section -->
     <div class="flex justify-between items-center mb-4 sm:mb-6">
             <div class="flex items-center gap-3">
-                <a href="/masyarakat/pengaduan" class="p-2 hover:bg-gray-100 rounded-lg transition-colors group">
+                <a href="{{ route('masyarakat.pengaduan') }}" class="p-2 hover:bg-gray-100 rounded-lg transition-colors group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 group-hover:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -50,7 +50,7 @@
             <!-- Detail Section -->
             <div class="lg:col-span-5">
                 <div class="bg-white rounded-xl shadow-xl p-8 h-full">
-                  
+
 
                      <!-- Problem Section -->
                      <div class="mb-8 pb-6 border-b border-gray-200">
@@ -126,7 +126,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Status 2 - Next -->
                                 <div class="relative flex items-start group">
                                     <div class="absolute left-0 flex items-center justify-center transform -translate-x-1/2 -translate-y-3">

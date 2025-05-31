@@ -32,9 +32,9 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 120),
+    'lifetime' => 120,
 
-    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    'expire_on_close' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -143,7 +143,7 @@ return [
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    'path' => '/',
 
     /*
     |--------------------------------------------------------------------------
@@ -156,7 +156,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +169,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +182,7 @@ return [
     |
     */
 
-    'http_only' => env('SESSION_HTTP_ONLY', true),
+    'http_only' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -199,7 +199,7 @@ return [
     |
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'same_site' => 'lax',
 
     /*
     |--------------------------------------------------------------------------
@@ -212,6 +212,64 @@ return [
     |
     */
 
-    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+    'partitioned' => false,
 
+    'serialization' => 'php',
+
+    'cookie_lifetime' => 120,
+    'cookie_path' => '/',
+    'cookie_domain' => null,
+    'cookie_secure' => false,
+    'cookie_http_only' => false,
+    'cookie_same_site' => 'lax',
+    'cookie_partitioned' => false,
+    'cookie_raw' => false,
+    'cookie_prefix' => '',
+    'cookie_suffix' => '',
+    'cookie_expire_on_close' => false,
+    'cookie_encrypt' => true,
+    'cookie_serialization' => 'php',
+    'cookie_lottery' => [2, 100],
+    'cookie_store' => null,
+    'cookie_connection' => null,
+    'cookie_table' => 'sessions',
+    'cookie_files' => storage_path('framework/sessions'),
+    'cookie_driver' => 'database',
+    'cookie_name' => Str::slug(env('APP_NAME', 'laravel'), '_').'_session',
+    'cookie_encryption_key' => env('APP_KEY'),
+    'cookie_encryption_cipher' => 'AES-256-CBC',
+    'cookie_encryption_algorithm' => 'AES-256-CBC',
+    'cookie_encryption_mode' => 'CBC',
+    'cookie_encryption_padding' => 'PKCS7',
+    'cookie_encryption_iv' => null,
+    'cookie_encryption_tag' => null,
+    'cookie_encryption_aad' => null,
+    'cookie_encryption_tag_length' => 16,
+    'cookie_encryption_key_length' => 32,
+    'cookie_encryption_iv_length' => 16,
+    'cookie_encryption_aad_length' => 0,
+    'cookie_encryption_tag_offset' => 0,
+    'cookie_encryption_key_offset' => 0,
+    'cookie_encryption_iv_offset' => 0,
+    'cookie_encryption_aad_offset' => 0,
+    'cookie_encryption_tag_end' => 16,
+    'cookie_encryption_key_end' => 32,
+    'cookie_encryption_iv_end' => 16,
+    'cookie_encryption_aad_end' => 0,
+    'cookie_encryption_tag_start' => 0,
+    'cookie_encryption_key_start' => 0,
+    'cookie_encryption_iv_start' => 0,
+    'cookie_encryption_aad_start' => 0,
+    'cookie_encryption_tag_length_offset' => 0,
+    'cookie_encryption_key_length_offset' => 0,
+    'cookie_encryption_iv_length_offset' => 0,
+    'cookie_encryption_aad_length_offset' => 0,
+    'cookie_encryption_tag_length_end' => 0,
+    'cookie_encryption_key_length_end' => 0,
+    'cookie_encryption_iv_length_end' => 0,
+    'cookie_encryption_aad_length_end' => 0,
+    'cookie_encryption_tag_length_start' => 0,
+    'cookie_encryption_key_length_start' => 0,
+    'cookie_encryption_iv_length_start' => 0,
+    'cookie_encryption_aad_length_start' => 0,
 ];

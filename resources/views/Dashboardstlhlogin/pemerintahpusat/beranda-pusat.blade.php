@@ -9,7 +9,7 @@
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 ">Beranda</h2>
         </div>
         <div class="w-full h-1 bg-yellow-400 mb-4 sm:mb-6"></div>
-        
+
         <!-- Main Content Section -->
         <div class="bg-white rounded-xl shadow-xl p-4 sm:p-6">
             <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
@@ -254,7 +254,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('statistikChart').getContext('2d');
-        
+
         const chartConfig = {
             type: 'doughnut',
             data: {
@@ -315,9 +315,9 @@
                 }
             }
         };
-        
+
         const chart = new Chart(ctx, chartConfig);
-        
+
         // Resize handler untuk responsivitas
         window.addEventListener('resize', function() {
             chart.options.plugins.legend.labels.boxWidth = window.innerWidth < 768 ? 10 : 12;
@@ -329,6 +329,25 @@
         });
     });
 </script>
+
+<style>
+    @media (max-width: 640px) {
+        table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            min-width: 100px;
+            padding: 8px;
+        }
+        .max-w-xs {
+            max-width: 150px;
+        }
+    }
+</style>
+
 @endpush
 
 @endsection

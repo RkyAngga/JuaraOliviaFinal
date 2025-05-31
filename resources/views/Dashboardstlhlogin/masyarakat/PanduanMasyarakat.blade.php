@@ -230,18 +230,6 @@
             </div>
         </div>
 
-        <!-- FAQ Item 7 -->
-        <div class="border border-kuning rounded-lg overflow-hidden">
-            <button class="faq-toggle w-full flex justify-between items-center p-6 bg-kuning hover:bg-gray-100 transition-colors">
-                <h3 class="text-xl font-semibold text-left" style="font-size: 18px;">Bagaimana sistem mencegah pemerintah daerah mengunggah bukti penyelesaian palsu?</h3>
-                <svg class="w-5 h-5 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div class="faq-content hidden px-6 pb-6">
-                <p class="text-gray-600" style="font-size: 16px;">Sistem menggunakan teknologi AI (Computer Vision & GPS) untuk memverifikasi bahwa foto/video bukti diambil langsung dari lokasi pengaduan dan sesuai dengan kategori yang dilaporkan.</p>
-            </div>
-        </div>
         <div class="border border-kuning rounded-lg overflow-hidden">
             <button class="faq-toggle w-full flex justify-between items-center p-6 bg-kuning hover:bg-gray-100 transition-colors">
                 <h3 class="text-xl font-semibold text-left" style="font-size: 18px;">Apakah tersedia di Aplikasi Mobile</h3>

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Dinas;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,11 +42,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // View composer untuk template dinas
-        View::composer('Dashboardstlhlogin.Dinas.template.*', function ($view) {
-            if (Auth::check() && Auth::user()->role === 'dinas') {
-                $dinas = \App\Models\Dinas::where('user_id', Auth::id())->first();
-                $view->with('dinas', $dinas);
+        View::composer('Dashboardstlhlogin.Dinas.Template.Template', function ($view) {
+            $user = auth()->user();
+            $dinas = null;
+            if ($user && $user->role === 'dinas') {
+                $dinas = Dinas::where('user_id', $user->id)->first();
             }
+            $view->with('dinas', $dinas);
         });
     }
 }
