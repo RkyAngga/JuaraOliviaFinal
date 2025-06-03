@@ -24,6 +24,7 @@ class LaporanPengaduan extends Model
         'related_pengaduan_id',
         'escalated_to_pusat',
         'waktu_menunggu_expired',
+        'last_report_at',
     ];
 
     public function masyarakat()

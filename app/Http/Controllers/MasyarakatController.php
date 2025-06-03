@@ -51,9 +51,9 @@ class MasyarakatController extends Controller
             'username' => 'required|string|unique:users,username,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'password_confirmation' => 'required_with:password',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         ], [
-            'foto_profil.max' => 'Ukuran foto maksimal 2 MB.',
+            'foto_profil.max' => 'Ukuran foto maksimal 5 MB.',
             'foto_profil.image' => 'File harus berupa gambar.',
             'foto_profil.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
@@ -83,8 +83,26 @@ class MasyarakatController extends Controller
             ];
             // Handle file upload
             if ($request->hasFile('foto_profil')) {
-                $image = file_get_contents($request->file('foto_profil')->getRealPath());
-                $masyarakatData['foto_profil'] = $image;
+                $file = $request->file('foto_profil');
+                if ($file->getSize() === 0) {
+                    Log::error('Foto profil upload gagal: file size 0 (kemungkinan bug kamera mobile)', ['user_id' => $user->id, 'device' => $request->header('User-Agent')]);
+                    return redirect()->back()->withErrors(['foto_profil' => 'Upload foto gagal. File dari kamera/gambar tidak valid. Silakan pilih ulang dari galeri atau kamera.'])->withInput();
+                }
+                if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])) {
+                    Log::error('Foto profil upload gagal: mime type tidak didukung', ['user_id' => $user->id, 'mime' => $file->getMimeType()]);
+                    return redirect()->back()->withErrors(['foto_profil' => 'Format foto tidak didukung. Pilih file JPG, PNG, atau GIF.'])->withInput();
+                }
+                try {
+                    $image = file_get_contents($file->getRealPath());
+                    if (!$image) {
+                        Log::error('Foto profil upload gagal: file corrupt', ['user_id' => $user->id]);
+                        return redirect()->back()->withErrors(['foto_profil' => 'Upload foto gagal. File tidak valid.'])->withInput();
+                    }
+                    $masyarakatData['foto_profil'] = $image;
+                } catch (\Exception $e) {
+                    Log::error('Foto profil upload gagal: ' . $e->getMessage(), ['user_id' => $user->id]);
+                    return redirect()->back()->withErrors(['foto_profil' => 'Upload foto gagal. Silakan coba lagi.'])->withInput();
+                }
             }
             $masyarakat->update($masyarakatData);
 

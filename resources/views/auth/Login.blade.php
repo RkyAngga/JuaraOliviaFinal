@@ -76,7 +76,7 @@
 
                                 <!-- Lupa Password Link -->
                                 <div class="md:col-span-2 flex justify-end">
-                                    <a href="{{ route('password.request') }}" class="text-merah hover:text-white hover:text-opacity-80 text-sm font-medium transition-colors">Lupa Password?</a>
+                                    <a href="{{ route('forgot.form') }}" class="text-merah hover:text-white hover:text-opacity-80 text-sm font-medium transition-colors">Lupa Password?</a>
                                 </div>
                             </div>
                         </div>

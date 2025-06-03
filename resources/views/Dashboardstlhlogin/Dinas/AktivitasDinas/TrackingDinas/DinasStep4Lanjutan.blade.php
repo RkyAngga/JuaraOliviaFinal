@@ -82,7 +82,7 @@
                         <!-- Button -->
                         <div class="pt-6">
                             <button type="button"
-                                    onclick="openDeviceModal()"
+                                    onclick="handleSelesaikanLaporan()"
                                     class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-lg font-bold text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                                 Selesaikan Laporan
                             </button>
@@ -297,7 +297,7 @@
 
             <!-- Action Buttons -->
             <div class="flex justify-center pt-2">
-                <button onclick="window.location.href='{{ route('dinas.laporan.step5.foto', $laporan->id) }}';" class="px-8 py-3 bg-kuning text-hitam hover:text-white hover:bg-kuning hover:ring-2 ring-white hover:bg-opacity-90 transform hover:scale-[0.98] transition-all duration-200 text-base shadow-lg rounded-full">Mengerti</button>
+                <button onclick="closeMobileWarningModal()" class="px-8 py-3 bg-kuning text-hitam hover:text-white hover:bg-kuning hover:ring-2 ring-white hover:bg-opacity-90 transform hover:scale-[0.98] transition-all duration-200 text-base shadow-lg rounded-full">Mengerti</button>
             </div>
         </div>
     </div>
@@ -336,6 +336,15 @@
         }
         window.location.href = '/dinas/laporan/step5/foto/{{ $laporan->id }}';
         return true;
+    }
+
+    function handleSelesaikanLaporan() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.location.href = '/dinas/laporan/step5/foto/{{ $laporan->id }}';
+        } else {
+            openMobileWarningModal();
+        }
     }
 </script>
 

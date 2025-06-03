@@ -47,9 +47,16 @@
     .animate-float {
         animation: float 3s ease-in-out infinite;
     }
+
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (max-width: 640px) {
+        .min-w-[85vw] { min-width: 85vw !important; }
+        .max-w-xs { max-width: 95vw !important; }
+    }
 </style>
 
-<section class="min-h-screen bg-gray-50">
+<section class="min-h-screen">
     <div class="container mx-auto px-8 py-4">
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-4 sm:mb-6">
@@ -170,7 +177,7 @@
         {{-- Bagian Laporan Aktif Milikmu --}}
         <div class="container mx-auto px-6 mt-10">
             <!-- Header -->
-            <div class="indent-30 px-4 sm:px-6 lg:px-8">
+            <div class="indent-10 px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center gap-2 sm:gap-4 mb-10">
                     <h2 class="text-lg sm:text-xl md:text-[20px] font-bold text-hitam whitespace-nowrap">
                         Laporan Aktif Milikmu
@@ -189,13 +196,11 @@
                             <div class="absolute top-10 left-5 sm:top-20 sm:left-10 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-400 rounded-full blur-xl"></div>
                             <div class="absolute bottom-5 right-5 sm:bottom-10 sm:right-10 w-32 h-32 sm:w-40 sm:h-40 bg-yellow-300 rounded-full blur-xl"></div>
                         </div>
-
                         <!-- Illustration -->
                         <div class="relative mb-6 sm:mb-8 animate-float">
                             <img src="{{ asset('img/Desain/kosong.svg') }}" alt="Ilustrasi" class="w-36 h-auto sm:w-44 md:w-52 drop-shadow-lg">
                             <div class="absolute -inset-2 sm:-inset-4 bg-yellow-200 rounded-full -z-10 blur-md opacity-70"></div>
                         </div>
-
                         <!-- Text content -->
                         <div class="text-center max-w-sm sm:max-w-md md:max-w-lg mx-auto mb-6 sm:mb-8 px-4">
                             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 leading-tight">
@@ -205,7 +210,6 @@
                                 Yuk mulai berkontribusi untuk lingkungan yang lebih baik dengan membuat laporan pertama Anda!
                             </p>
                         </div>
-
                         <!-- CTA button -->
                         <a href="/masyarakat/pengaduan/buat/1"
                             class="relative inline-block px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm sm:text-base font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-400/50 overflow-hidden">
@@ -219,121 +223,96 @@
                     </div>
                 @else
                     {{-- Grid Card Laporan --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="flex overflow-x-auto gap-2 snap-x snap-mandatory scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-3">
                         @foreach($laporans as $laporan)
                             @php
                                 $trackProses = $laporan->tracking->where('status', 'Di Proses')->last();
                                 $isMenungguVerif = $trackProses && $trackProses->sub_status == 'menunggu_verifikasi_admin';
+                                $detailUrl = '';
+                                if ($laporan->ulasan) {
+                                    $detailUrl = route('masyarakat.laporan.ulasan', $laporan->id);
+                                } elseif ($laporan->status == 'Menunggu') {
+                                    $detailUrl = route('masyarakat.laporan.menunggu', $laporan->id);
+                                } elseif ($laporan->status == 'Di Proses' && $isMenungguVerif) {
+                                    $detailUrl = route('masyarakat.laporan.proses.ditindaklanjuti', $laporan->id);
+                                } elseif ($laporan->status == 'Di Proses') {
+                                    $detailUrl = route('masyarakat.laporan.proses.diselesaikan', $laporan->id);
+                                } elseif ($laporan->status == 'Selesai') {
+                                    $detailUrl = route('masyarakat.laporan.selesai', $laporan->id);
+                                } elseif ($laporan->status == 'Ditolak') {
+                                    $detailUrl = route('masyarakat.laporan.ditolak', $laporan->id);
+                                }
+                                $borderColor = match($laporan->status) {
+                                    'Menunggu' => '#FFD600',
+                                    'Di Proses' => $isMenungguVerif ? '#093456' : '#2196F3',
+                                    'Selesai' => '#43A047',
+                                    'Ditolak' => '#E53935',
+                                    default => '#FFD600',
+                                };
+                                $badgeColor = $borderColor;
                             @endphp
-                            <div class="card group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4"
-                                @if($laporan->status == 'Menunggu')
-                                    style="border-color: #FFD600;"
-                                @elseif($laporan->status == 'Di Proses')
-                                    style="border-color: {{ $isMenungguVerif ? '#093456' : '#2196F3' }};"
-                                @elseif($laporan->status == 'Selesai')
-                                    style="border-color: #43A047;"
-                                @elseif($laporan->status == 'Ditolak')
-                                    style="border-color: #E53935;"
-                                @endif
-                            >
-                                {{-- Badge Status --}}
-                                <div class="absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm"
-                                    @if($laporan->status == 'Menunggu')
-                                        style="background: #FFD600; color: #000;"
-                                    @elseif($laporan->status == 'Di Proses')
-                                        style="background: {{ $isMenungguVerif ? '#093456' : '#2196F3' }};"
-                                    @elseif($laporan->status == 'Selesai')
-                                        style="background: #43A047;"
-                                    @elseif($laporan->status == 'Ditolak')
-                                        style="background: #E53935;"
-                                    @endif
-                                >
-                                    @if($laporan->status == 'Di Proses')
-                                        {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
-                                    @elseif($laporan->status == 'Ditolak')
-                                        Ditolak
-                                    @else
-                                        {{ $laporan->status }}
-                                    @endif
-                                </div>
-
-                                {{-- Link Detail Laporan --}}
-                                <a href="
-                                    @if($laporan->ulasan)
-                                        {{ route('masyarakat.laporan.ulasan', $laporan->id) }}
-                                    @elseif($laporan->status == 'Menunggu')
-                                        {{ route('masyarakat.laporan.menunggu', $laporan->id) }}
-                                    @elseif($laporan->status == 'Di Proses' && $isMenungguVerif)
-                                        {{ route('masyarakat.laporan.proses.ditindaklanjuti', $laporan->id) }}
-                                    @elseif($laporan->status == 'Di Proses')
-                                        {{ route('masyarakat.laporan.proses.diselesaikan', $laporan->id) }}
-                                    @elseif($laporan->status == 'Selesai')
-                                        {{ route('masyarakat.laporan.selesai', $laporan->id) }}
-                                    @elseif($laporan->status == 'Ditolak')
-                                        {{ route('masyarakat.laporan.ditolak', $laporan->id) }}
-                                    @endif
-                                " class="block">
-                                    {{-- Foto Laporan --}}
-                                    <div class="relative overflow-hidden">
-                                        <img src="{{ asset('storage/' . $laporan->foto_video) }}" alt="Foto Laporan" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="min-w-[85vw] max-w-xs snap-center sm:min-w-0 sm:max-w-none">
+                                <div class="card group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4" style="border-color: {{ $borderColor }};">
+                                    {{-- Badge Status --}}
+                                    <div class="absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm" style="background: {{ $badgeColor }}; {{ $laporan->status == 'Menunggu' ? 'color: #000;' : '' }}">
+                                        @if($laporan->status == 'Di Proses')
+                                            {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
+                                        @elseif($laporan->status == 'Ditolak')
+                                            Ditolak
+                                        @else
+                                            {{ $laporan->status }}
+                                        @endif
                                     </div>
-
-                                    {{-- Informasi Laporan --}}
-                                    <div class="p-5">
-                                        <div class="flex justify-between items-start">
-                                            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors line-clamp-2">{{ $laporan->deskripsi }}</h3>
-                                            <span class="text-sm text-gray-500">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</span>
+                                    {{-- Link Detail Laporan --}}
+                                    <a href="{{ $detailUrl }}" class="block">
+                                        {{-- Foto Laporan --}}
+                                        <div class="relative overflow-hidden">
+                                            <img src="{{ asset('storage/' . $laporan->foto_video) }}" alt="Foto Laporan" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105">
                                         </div>
-                                        <div class="flex items-center text-gray-600 text-sm mb-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            <a href="/masyarakat/dashboard?focus={{ $laporan->id }}" title="Lihat di Peta" class="flex items-center text-gray-600 hover:text-green-600 transition-colors">
-                                                <span class="truncate">{{ $laporan->lokasi }}</span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        {{-- Informasi Laporan --}}
+                                        <div class="p-5">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors break-words whitespace-normal">{{ $laporan->deskripsi }}</h3>
+                                                <span class="text-sm text-gray-500">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</span>
+                                            </div>
+                                            <div class="flex items-center text-gray-600 text-sm mb-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                            </a>
+                                                <a href="/masyarakat/dashboard?focus={{ $laporan->id }}" title="Lihat di Peta" class="flex items-center text-gray-600 hover:text-green-600 transition-colors">
+                                                    <span class="truncate">{{ $laporan->lokasi }}</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
-
-                                {{-- Tombol Interaksi untuk Laporan yang Sedang Diproses --}}
-                                @if($laporan->status == 'Di Proses')
-                                <div class="px-5 pb-5 pt-0">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex space-x-4">
-                                            <button class="like-btn flex items-center text-gray-500 hover:text-red-500 transition" data-liked="false">
-                                                <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
-                                                <span>0</span>
-                                            </button>
-                                            <button class="flex items-center text-gray-500 hover:text-blue-500 transition">
-                                                <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    </a>
+                                    {{-- Tombol Interaksi untuk Laporan yang Sedang Diproses --}}
+                                    @if($laporan->status == 'Di Proses')
+                                    <div class="justify-start">
+                                        <div class="max-w-4xl mx-auto mb-4 flex items-center space-x-4">
+                                            <form action="{{ route('masyarakat.laporan.like', $laporan->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="flex items-center space-x-1 text-gray-600 hover:text-blue-500 {{ $laporan->liked ? 'text-blue-600' : '' }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                                    </svg>
+                                                    <span>{{ $laporan->likeCount }}</span>
+                                                </button>
+                                            </form>
+                                            <div class="flex items-center space-x-1 text-gray-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
-                                                <span>0</span>
-                                            </button>
+                                                <span>{{ $laporan->komentar->count() }}</span>
+                                            </div>
                                         </div>
-                                        <a href="
-                                            @if($laporan->status == 'Menunggu')
-                                                {{ route('masyarakat.laporan.menunggu', $laporan->id) }}
-                                            @elseif($laporan->status == 'Di Proses' && $isMenungguVerif)
-                                                {{ route('masyarakat.laporan.proses.ditindaklanjuti', $laporan->id) }}
-                                            @elseif($laporan->status == 'Di Proses')
-                                                {{ route('masyarakat.laporan.proses.diselesaikan', $laporan->id) }}
-                                            @elseif($laporan->status == 'Selesai')
-                                                {{ route('masyarakat.laporan.selesai', $laporan->id) }}
-                                            @elseif($laporan->status == 'Ditolak')
-                                                {{ route('masyarakat.laporan.ditolak', $laporan->id) }}
-                                            @endif
-                                        " class="text-yellow-600 font-medium hover:text-yellow-700 transition-colors">Lihat Detail</a>
                                     </div>
+                                    @endif
                                 </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -575,8 +554,8 @@ function startGeoTracking() {
         if(!isMobile && isLocalhost) {
             console.log("Simulating location for desktop localhost");
             currentLocation = {
-                latitude:  -7.95459832805591,
-                longitude:  112.61261386055314,
+                latitude:  -7.974993740083381,
+                longitude:  112.6324786158495,
                 accuracy: 5
             };
             updateGeoDisplay(); // Panggil update setelah set lokasi
@@ -663,35 +642,31 @@ function updateGeoDisplay() {
 }
 
 async function getAddressDetails() {
-     if (!currentLocation) {
+     if (!currentLocation || !currentLocation.latitude || !currentLocation.longitude) {
         console.warn("Cannot get address details, location is null.");
+        const fullAddressElement = document.getElementById('fullAddress');
+        if (fullAddressElement) {
+            fullAddressElement.innerHTML = `<div>Gagal mendapatkan detail alamat (koordinat tidak ditemukan).</div>`;
+        }
         return;
     }
-    console.log("Fetching address details for:", currentLocation.latitude, currentLocation.longitude);
     try {
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&addressdetails=1&accept-language=id`, // Tambahkan accept-language=id
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&addressdetails=1&accept-language=id`,
             {
                 headers: {
-                    'User-Agent': 'LaporanAppMasyarakat/1.0 (juaraolivia@example.com)' // Ganti User-Agent jika perlu
+                    'User-Agent': 'LaporanAppMasyarakat/1.0 (juaraolivia@example.com)'
                 }
             }
         );
-
         if (!response.ok) {
             throw new Error(`Nominatim request failed with status ${response.status}`);
         }
-
         const data = await response.json();
-        console.log("Address data received:", data);
-
         if (data.error) {
             throw new Error(`Nominatim error: ${data.error}`);
         }
-
         addressDetails = parseAddress(data.address);
-
-        // Update tampilan alamat di overlay form laporan
         const fullAddressElement = document.getElementById('fullAddress');
         if (fullAddressElement) {
             fullAddressElement.innerHTML = `
@@ -700,16 +675,14 @@ async function getAddressDetails() {
                 <div>${addressDetails.desa ? `Desa/Kel: ${addressDetails.desa}` : ''}</div>
                 <div>${addressDetails.kecamatan ? `Kec. ${addressDetails.kecamatan}` : ''}</div>
                 <div>${addressDetails.kota ? `${addressDetails.kota}` : ''}${addressDetails.provinsi ? `, ${addressDetails.provinsi}` : ''}</div>
-            `.replace(/<div>\s*<\/div>/g, ''); // Hapus div kosong
+            `.replace(/<div>\s*<\/div>/g, '');
         }
-
     } catch (error) {
         console.error('Error getting address details:', error);
          const fullAddressElement = document.getElementById('fullAddress');
          if (fullAddressElement) {
              fullAddressElement.innerHTML = `<div>Gagal mendapatkan detail alamat.</div>`;
          }
-        // Set default empty values if address lookup fails
         addressDetails = {
             jalan: 'Tidak diketahui', gang: '', desa: '', kecamatan: '', kota: '', provinsi: ''
         };

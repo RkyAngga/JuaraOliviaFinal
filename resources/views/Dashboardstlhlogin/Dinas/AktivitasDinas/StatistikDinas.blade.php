@@ -81,7 +81,7 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const ctx = document.getElementById('statistikChart').getContext('2d');
-                        
+
                         const chartConfig = {
                             type: 'doughnut',
                             data: {
@@ -142,9 +142,9 @@
                                 }
                             }
                         };
-                        
+
                         const chart = new Chart(ctx, chartConfig);
-                        
+
                         // Resize handler untuk responsivitas
                         window.addEventListener('resize', function() {
                             chart.options.plugins.legend.labels.boxWidth = window.innerWidth < 768 ? 10 : 12;
@@ -164,7 +164,7 @@
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const ctx = document.getElementById('statistikChart').getContext('2d');
-                    
+
                     const chartConfig = {
                         type: 'doughnut',
                         data: {
@@ -245,3 +245,21 @@
 </section>
 
 @endsection
+
+<style>
+    @media (max-width: 640px) {
+        table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            min-width: 100px;
+            padding: 8px;
+        }
+        .max-w-xs {
+            max-width: 150px;
+        }
+    }
+</style>

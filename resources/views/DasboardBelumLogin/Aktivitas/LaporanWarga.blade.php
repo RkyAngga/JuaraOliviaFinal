@@ -100,7 +100,7 @@
                     return true;
                 });
             @endphp
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="flex overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
                 @foreach($filteredLaporans as $laporan)
                     @php
                         $trackProses = $laporan->tracking->where('status', 'Di Proses')->last();
@@ -126,44 +126,46 @@
                         };
                         $badgeColor = $borderColor;
                     @endphp
-                    <div class="card group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4" style="border-color: {{ $borderColor }};">
-                        {{-- Badge Status --}}
-                        <div class="absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm" style="background: {{ $badgeColor }};">
-                            @if($laporan->status == 'Di Proses')
-                                {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
-                            @elseif($laporan->status == 'Ditolak')
-                                Tidak Terselesaikan
-                            @else
-                                {{ $laporan->status }}
-                            @endif
-                        </div>
-                        {{-- Link Detail Laporan --}}
-                        <a href="/login" class="block">
-                            {{-- Foto Laporan --}}
-                            <div class="relative overflow-hidden">
-                                <img src="{{ asset('storage/' . $laporan->foto_video) }}" alt="Foto Laporan" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="min-w-[85vw] max-w-xs snap-center sm:min-w-0 sm:max-w-none">
+                        <div class="card group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4" style="border-color: {{ $borderColor }};">
+                            {{-- Badge Status --}}
+                            <div class="absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1 rounded-full z-10 shadow-sm" style="background: {{ $badgeColor }};">
+                                @if($laporan->status == 'Di Proses')
+                                    {{ $isMenungguVerif ? 'Menunggu Verifikasi Admin' : 'On-Proggres' }}
+                                @elseif($laporan->status == 'Ditolak')
+                                    Ditolak
+                                @else
+                                    {{ $laporan->status }}
+                                @endif
                             </div>
-                            {{-- Informasi Laporan --}}
-                            <div class="p-5">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors line-clamp-2">{{ $laporan->deskripsi }}</h3>
-                                    <span class="text-sm text-gray-500">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</span>
+                            {{-- Link Detail Laporan --}}
+                            <a href="/login" class="block">
+                                {{-- Foto Laporan --}}
+                                <div class="relative overflow-hidden">
+                                    <img src="{{ asset('storage/' . $laporan->foto_video) }}" alt="Foto Laporan" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105">
                                 </div>
-                                <div class="flex items-center text-gray-600 text-sm mb-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <a href="/masyarakat/dashboard?focus={{ $laporan->id }}" title="Lihat di Peta" class="flex items-center text-gray-600 hover:text-green-600 transition-colors">
-                                        <span class="truncate">{{ $laporan->lokasi }}</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {{-- Informasi Laporan --}}
+                                <div class="p-5">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors line-clamp-2">{{ $laporan->deskripsi }}</h3>
+                                        <span class="text-sm text-gray-500">{{ $laporan->created_at->format('Y-m-d H:i:s') }}</span>
+                                    </div>
+                                    <div class="flex items-center text-gray-600 text-sm mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                    </a>
+                                        <a href="/masyarakat/dashboard?focus={{ $laporan->id }}" title="Lihat di Peta" class="flex items-center text-gray-600 hover:text-green-600 transition-colors">
+                                            <span class="truncate">{{ $laporan->lokasi }}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+                        </div>
                     </div>
                 @endforeach
             </div>
@@ -179,6 +181,8 @@
     .animate-float {
         animation: float 3s ease-in-out infinite;
     }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
 <script>

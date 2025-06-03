@@ -17,6 +17,7 @@ use App\Models\PemerintahPusatDinas;
 use App\Models\PesanPusatKeDinas;
 use App\Models\KomentarLaporan;
 use App\Models\LikeLaporan;
+use Illuminate\Support\Facades\DB;
 
 class LaporanPengaduanController extends Controller
 {
@@ -31,87 +32,156 @@ class LaporanPengaduanController extends Controller
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
 
-        // Check for exact duplicate report by the same user at the same location within the last 5 seconds
-        $exactDuplicate = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
-            ->where('latitude', $latitude)
-            ->where('longitude', $longitude)
-            ->where('created_at', '>=', now()->subSeconds(5))
-            ->exists();
+        DB::beginTransaction();
+        try {
+            // Lock baris masyarakat agar tidak race condition
+            $masyarakat = \App\Models\Masyarakat::where('id', $masyarakatId)->lockForUpdate()->first();
 
-        if ($exactDuplicate) {
-            return; // Stop execution silently
-        }
+            // Cek laporan aktif dalam 2 menit terakhir
+            $laporanAktif = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
+                ->whereIn('status', ['Menunggu', 'Di Proses'])
+                ->where('created_at', '>=', now()->subMinutes(2))
+                ->lockForUpdate()
+                ->exists();
 
-        // Check for recent duplicate reports within 10 meters and last 15 seconds for the same user
-        $recentNearbyReport = \App\Models\LaporanPengaduan::selectRaw('*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [$latitude, $longitude, $latitude])
-            ->having('distance', '<=', 10) // Check within 10 meters radius
-            ->where('masyarakat_id', $masyarakatId)
-            ->whereIn('status', ['Menunggu', 'Di Proses']) // Consider pending reports
-            ->where('created_at', '>=', now()->subSeconds(15)) // Check within last 15 seconds
-            ->exists();
+            if ($laporanAktif) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'reason' => 'cooldown',
+                    'message' => 'Anda sudah mengirim laporan. Tunggu 2 menit sebelum membuat laporan baru.'
+                ], 200);
+            }
 
-        if ($recentNearbyReport) {
-            return; // Stop execution silently
-        }
-
-        $request->validate([
-            'foto' => 'required|image|mimes:jpeg,png,jpg|max:5120', // max 5MB
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'alamat' => 'required|string',
-            'deskripsi' => 'required|string',
-        ]);
-        \Log::info('Validation passed');
-
-        $masyarakat = Auth::user()->masyarakat;
-        $masyarakatId = $masyarakat->id ?? null;
-        $latitude = $request->input('latitude');
-        $longitude = $request->input('longitude');
-
-        // 3. CARI LAPORAN UTAMA (pertama) di radius 5 meter
-        $laporanUtama = \App\Models\LaporanPengaduan::selectRaw('*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [$latitude, $longitude, $latitude])
-            ->having('distance', '<=', 5)
+            // === LOGIKA PENGGABUNGAN LAPORAN ===
+            // 1. Cari laporan utama (related_pengaduan_id = null) dalam radius 15 meter, status aktif
+            $laporanUtama = LaporanPengaduan::selectRaw(
+                '*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance',
+                [$latitude, $longitude, $latitude]
+            )
+            ->whereNull('related_pengaduan_id')
+            ->whereIn('status', ['Menunggu', 'Di Proses'])
+            ->having('distance', '<=', 15)
             ->orderBy('created_at', 'asc')
+            ->lockForUpdate()
             ->first();
 
-        $relatedId = $laporanUtama ? $laporanUtama->id : null;
+            $relatedId = null;
+            if ($laporanUtama) {
+                // Hitung total laporan (utama + anak) dalam cluster ini
+                $jumlahAnak = LaporanPengaduan::where('related_pengaduan_id', $laporanUtama->id)
+                    ->whereIn('status', ['Menunggu', 'Di Proses'])
+                    ->count();
+                $totalLaporan = 1 + $jumlahAnak; // 1 utama + anak
 
-        // 4. SIMPAN LAPORAN BARU
-        $path = $request->file('foto')->store('laporan', 'public');
+                if ($totalLaporan >= 3) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'reason' => 'max_laporan',
+                        'message' => 'Maaf Laporan di lokasi ini sudah mencapai batas maksimal . Silakan berikan ulasan terhadap laporan yang sudah ada.'
+                    ], 200);
+                }
+                // Masukkan sebagai anak
+                $relatedId = $laporanUtama->id;
+            }
+            // Jika tidak ada laporan utama aktif dalam radius, relatedId tetap null (jadi laporan utama)
 
-        // Atur dinas_id secara eksplisit menjadi 1 karena hanya ada 1 dinas
-        // Hapus atau perbaiki logika penentuan dinas berdasarkan lokasi di masa depan jika ada lebih dari 1 dinas.
-        $assignedDinasId = 1;
-        \Log::info('Menetapkan dinas_id = 1 untuk laporan baru');
+            // Cek duplikat exact (user, lokasi, 5 detik)
+            $exactDuplicate = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
+                ->where('latitude', $latitude)
+                ->where('longitude', $longitude)
+                ->where('created_at', '>=', now()->subSeconds(5))
+                ->exists();
+            if ($exactDuplicate) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'reason' => 'duplicate',
+                    'message' => 'Laporan sudah pernah dikirim dalam 5 detik terakhir di lokasi yang sama.'
+                ], 200);
+            }
 
-        $laporan = \App\Models\LaporanPengaduan::create([
-            'masyarakat_id' => $masyarakatId,
-            'dinas_id' => $assignedDinasId, // Gunakan assignedDinasId (sekarang 1)
-            'lokasi' => $request->input('alamat'),
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'foto_video' => $path,
-            'deskripsi' => $request->input('deskripsi'),
-            'status' => 'Menunggu',
-            'related_pengaduan_id' => $relatedId,
-            'escalated_to_pusat' => false,
-            'waktu_menunggu_expired' => now()->addMinutes(2),
-        ]);
+            // Cek duplikat nearby (user, radius 10m, 10 detik)
+            $recentNearbyDuplicate = \App\Models\LaporanPengaduan::selectRaw('*, (6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance', [
+                $latitude, $longitude, $latitude
+            ])
+                ->having('distance', '<=', 10)
+                ->where('masyarakat_id', $masyarakatId)
+                ->where('created_at', '>=', now()->subSeconds(10))
+                ->exists();
+            if ($recentNearbyDuplicate) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'reason' => 'duplicate',
+                    'message' => 'Laporan sudah pernah dikirim dalam 10 detik terakhir di lokasi yang sama.'
+                ], 200);
+            }
 
-        if ($laporan) {
-            // 5. UPDATE COOLDOWN DAN TAMBAH POIN
-            // Ambil kembali model masyarakat untuk memastikan data terbaru
-            $masyarakat = $laporan->masyarakat; // Ambil relasi masyarakat dari laporan yang baru dibuat
+            $request->validate([
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'alamat' => 'required|string',
+                'deskripsi' => 'required|string',
+            ]);
 
-            // Setel waktu laporan terakhir dan tambahkan poin
-            $masyarakat->last_report_at = now();
-            $masyarakat->poin += 10; // Tambahkan poin (Pastikan ini sesuai dengan logika bisnis Anda)
+            // 4. SIMPAN LAPORAN BARU
+            if ($request->hasFile('foto')) {
+                $path = $request->file('foto')->store('laporan', 'public');
+            } elseif ($request->has('imageData')) {
+                $imageData = $request->input('imageData');
+                $image = str_replace('data:image/jpeg;base64,', '', $imageData);
+                $image = str_replace(' ', '+', $image);
+                $imageName = 'laporan/' . uniqid() . '.jpg';
+                \Storage::disk('public')->put($imageName, base64_decode($image));
+                $path = $imageName;
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Foto laporan tidak ditemukan.'
+                ], 422);
+            }
 
-            // Simpan perubahan pada model masyarakat
-            $masyarakat->save();
+            // Ambil dinas pertama yang ada di database
+            $firstDinas = \App\Models\Dinas::first();
+            $assignedDinasId = $firstDinas ? $firstDinas->id : null;
+            if (!$assignedDinasId) {
+                \Log::error('Tidak ada dinas yang tersedia. Hubungi admin.');
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada dinas yang tersedia. Hubungi admin.'
+                ], 500);
+            }
+            \Log::info('Menetapkan dinas_id = ' . $assignedDinasId . ' untuk laporan baru');
 
-            \Log::info('Masyarakat mendapat 10 poin dari laporan baru', ['user_id' => $masyarakat->user_id, 'current_poin' => $masyarakat->poin]);
-            \Log::info('Laporan berhasil disimpan dan cooldown diperbarui', ['laporan_id' => $laporan->id, 'new_last_report_at' => $masyarakat->last_report_at]);
+            $laporan = \App\Models\LaporanPengaduan::create([
+                'masyarakat_id' => $masyarakatId,
+                'dinas_id' => $assignedDinasId,
+                'lokasi' => $request->input('alamat'),
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'foto_video' => $path,
+                'deskripsi' => $request->input('deskripsi'),
+                'status' => 'Menunggu',
+                'related_pengaduan_id' => $relatedId,
+                'escalated_to_pusat' => false,
+                'waktu_menunggu_expired' => now()->addMinutes(2),
+            ]);
+
+            if ($laporan) {
+                $masyarakat = $laporan->masyarakat;
+                $masyarakat->last_report_at = now();
+                $masyarakat->poin += 10;
+                $masyarakat->save();
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
 
         return response()->json([
@@ -163,6 +233,14 @@ class LaporanPengaduanController extends Controller
         $laporans = \App\Models\LaporanPengaduan::where('masyarakat_id', $masyarakatId)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Tambahkan data like dan komentar untuk setiap laporan
+        $laporans = $laporans->map(function($laporan) use ($user) {
+            $laporan->likeCount = \App\Models\LikeLaporan::where('pengaduan_id', $laporan->id)->count();
+            $laporan->liked = \App\Models\LikeLaporan::where('pengaduan_id', $laporan->id)->where('user_id', $user->id)->exists();
+            $laporan->komentar = \App\Models\KomentarLaporan::where('pengaduan_id', $laporan->id)->get();
+            return $laporan;
+        });
 
         return view('Dashboardstlhlogin.masyarakat.pengaduan.BuatLaporan1', compact('laporans'));
     }
@@ -1093,16 +1171,19 @@ class LaporanPengaduanController extends Controller
      */
     public function laporanPusat()
     {
-        // Ambil laporan yang di-escalate ke pusat dan statusnya Menunggu
+        // Ambil laporan utama (related_pengaduan_id = null) yang di-escalate ke pusat dan statusnya Menunggu
         $belumRespon = \App\Models\LaporanPengaduan::where('escalated_to_pusat', 1)
             ->where('status', 'Menunggu')
+            ->whereNull('related_pengaduan_id')
             ->get();
 
-        // Ambil laporan yang tracking terakhirnya "Tidak Terselesaikan"
+        // Ambil laporan utama (related_pengaduan_id = null) yang tracking terakhirnya "Tidak Terselesaikan" dan di-escalate ke pusat
         $trackingIds = \App\Models\TrackingLaporan::where('escalated_to_pusat', 1)
             ->where('status', 'Tidak Terselesaikan')
             ->pluck('pengaduan_id');
-        $tidakTerselesaikan = \App\Models\LaporanPengaduan::whereIn('id', $trackingIds)->get();
+        $tidakTerselesaikan = \App\Models\LaporanPengaduan::whereIn('id', $trackingIds)
+            ->whereNull('related_pengaduan_id')
+            ->get();
 
         // Gabungkan
         $laporans = $belumRespon->merge($tidakTerselesaikan);
@@ -1110,11 +1191,9 @@ class LaporanPengaduanController extends Controller
         // FILTER: Hapus laporan yang tracking terakhirnya sub_status == 'menunggu_verifikasi_admin'
         $laporans = $laporans->filter(function($laporan) {
             $lastTracking = $laporan->tracking->sortByDesc('created_at')->first();
-            // Hapus jika status "Tidak Terselesaikan" DAN sub_status terakhir "menunggu_verifikasi_admin"
             if ($laporan->status == 'Tidak Terselesaikan' && $lastTracking && $lastTracking->sub_status == 'menunggu_verifikasi_admin') {
                 return false;
             }
-            // Hapus juga jika sub_status terakhir "menunggu_verifikasi_admin" (opsional, jika ingin lebih strict)
             if ($lastTracking && $lastTracking->sub_status == 'menunggu_verifikasi_admin') {
                 return false;
             }

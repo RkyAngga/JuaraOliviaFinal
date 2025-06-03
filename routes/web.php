@@ -35,7 +35,13 @@ Route::get('/register', function () {
     return view('auth.Register');
 })->name('register');
 
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+// Forgot password OTP
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('forgot.form');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('forgot.sendOtp');
+Route::get('/otp', [ForgotPasswordController::class, 'showOtpForm'])->name('otp.form');
+Route::post('/otp', [ForgotPasswordController::class, 'verifyOtp'])->name('otp.verify');
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.reset.save');
 
 // Public Content Routes
 Route::get('/pengaduan', function () {
@@ -71,12 +77,7 @@ Route::get('/LaporanWarga', function () {
 // Auth Processing Routes
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/otp', [ForgotPasswordController::class, 'showOTPForm'])->name('otp.form');
-Route::post('/otp/verify', [ForgotPasswordController::class, 'verifyOTP'])->name('otp.verify');
-Route::post('/otp/resend', [ForgotPasswordController::class, 'resendOTP'])->name('otp.resend');
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
+// Route::get('/reset-password/{token}', function ($token) { ... })->name('password.reset');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {

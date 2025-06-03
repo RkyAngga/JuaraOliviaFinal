@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Dinas;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,24 @@ class AppServiceProvider extends ServiceProvider
                     ->count();
             }
             $view->with('unreadNotifCount', $unreadNotifCount);
+        });
+
+        // View composer untuk template pusat
+        View::composer('Dashboardstlhlogin.pemerintahpusat.template.*', function ($view) {
+            if (Auth::check() && Auth::user()->role === 'pemerintahpusat') {
+                $pusat = \App\Models\PemerintahPusatDinas::where('user_id', Auth::id())->first();
+                $view->with('pusat', $pusat);
+            }
+        });
+
+        // View composer untuk template dinas
+        View::composer('Dashboardstlhlogin.Dinas.Template.Template', function ($view) {
+            $user = auth()->user();
+            $dinas = null;
+            if ($user && $user->role === 'dinas') {
+                $dinas = Dinas::where('user_id', $user->id)->first();
+            }
+            $view->with('dinas', $dinas);
         });
     }
 }

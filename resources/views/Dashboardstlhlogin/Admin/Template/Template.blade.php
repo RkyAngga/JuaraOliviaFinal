@@ -24,12 +24,13 @@
         <div class="flex items-center justify-between w-full">
             <!-- Logo -->
             <div class="px-4">
-                <a href="/home" class="font-bold text-black mx-8 flex items-center py-6 pl-4">
+                <a href="/admin/dashboard" class="font-bold text-black mx-8 flex items-center py-6 pl-4">
                     <img src="{{ asset('img/logo/Hitam2.png') }}" alt="Logo Lapor.Pal!" class="custom-logo resize-logo" />
                 </a>
             </div>
 
             <!-- Menu Navigasi -->
+<<<<<<< HEAD
             <div class="flex items-center ml-auto px-8">
                 <button id="hamburger" name="hamburger" type="button" class="block absolute right-4 lg:hidden">
                     <span class="hamburger-line transition duration-300 ease-in-out"></span>
@@ -45,31 +46,42 @@
                                 <a href="/admin/dashboard"
                                     class="text-base lg:text-[18px] font-bold py-2 mx-8 lg:mx-0 flex group-hover:text-hitam relative
                                     {{ request()->is('/') || request()->is('home') ? 'text-hitam after:content-[\"\"] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
+=======
+            <div class="flex items-center ml-auto px-4 lg:px-8 space-x-6">
+                <button id="hamburger" type="button" class="lg:hidden focus:outline-none z-50">
+                    <span class="hamburger-line transition duration-300 ease-in-out"></span>
+                    <span class="hamburger-line transition duration-300 ease-in-out"></span>
+                    <span class="hamburger-line transition duration-300 ease-in-out"></span>
+                </button>
+
+                <!-- Navigation Menu -->
+                <nav id="nav-menu" class="hidden absolute lg:static top-0 left-0 right-0 lg:block mt-16 lg:mt-0 py-5 lg:py-0 bg-white lg:bg-transparent shadow-lg lg:shadow-none rounded-lg lg:rounded-none w-full lg:w-auto z-40">
+                    <ul class="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0">
+                        <!-- Main Menu Group -->
+                        <div class="flex flex-col lg:flex-row w-full lg:w-auto space-y-4 lg:space-y-0 lg:space-x-7 px-8 lg:px-0">
+                            <li class="w-full lg:w-auto">
+                                <a href="/admin/dashboard" class="block text-[18px] font-bold py-2 relative {{ request()->is('admin/dashboard') ? 'text-hitam after:content-[" "] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
+>>>>>>> 065482a9ca8e6853afb130d51993539a4b36aa66
                                     Dashboard
                                 </a>
                             </li>
-                            <li class="group">
-                                <a href="/admin/laporan"
-                                    class="text-base lg:text-[18px] font-bold py-2 mx-8 lg:mx-0 flex group-hover:text-hitam relative
-                                    {{ request()->is('pengaduan*') ? 'text-hitam after:content-[\"\"] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
+                            <li class="w-full lg:w-auto">
+                                <a href="/admin/laporan" class="block text-[18px] font-bold py-2 relative {{ request()->is('admin/laporan*') ? 'text-hitam after:content-[" "] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
                                     Laporan
                                 </a>
                             </li>
-                            <li class="group">
-                                <a href="/admin/statistikDinas"
-                                    class="text-base lg:text-[18px] font-bold py-2 mx-8 lg:mx-0 flex group-hover:text-hitam relative
-                                    {{ request()->is('statistikDinas*') ? 'text-hitam after:content-[\"\"] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
+                            <li class="w-full lg:w-auto">
+                                <a href="/admin/statistikDinas" class="block text-[18px] font-bold py-2 relative {{ request()->is('admin/statistikDinas*') ? 'text-hitam after:content-[" "] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
                                     Statistik Dinas
                                 </a>
                             </li>
-                            <li class="group">
-                                <a href="/admin/akun"
-                                    class="text-base lg:text-[18px] font-bold py-2 mx-8 lg:mx-0 flex group-hover:text-hitam relative
-                                    {{ request()->is('aktivitas*') ? 'text-hitam after:content-[\"\"] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
+                            <li class="w-full lg:w-auto">
+                                <a href="/admin/akun" class="block text-[18px] font-bold py-2 relative {{ request()->is('admin/akun*') ? 'text-hitam after:content-[" "] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-kuning' : 'text-hitam/70 hover:text-hitam' }}">
                                     Akun
                                 </a>
                             </li>
                         </div>
+<<<<<<< HEAD
 
                         <!-- Grup Auth -->
                         <div class="flex flex-col items-start space-y-2 px-8 pl-16 lg:pl-0 lg:flex-row lg:items-center lg:space-y-0 lg:space-x-4 lg:px-4 mt-0">
@@ -82,17 +94,67 @@
                                 <a href="/admin/notifikasi" class="text-[18px] font-bold text-hitam py-2 flex hover:text-kuning transition-colors relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:h-7 lg:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+=======
+                        <!-- Mobile Only: Notifikasi & Logout -->
+                        <li class="w-full lg:hidden">
+                            <a href="/admin/notifikasi" class="flex items-center text-[18px] font-bold py-2 mx-8 text-hitam/70 hover:text-hitam">
+                                <span class="mr-2">Notifikasi</span>
+                                @if(isset($unreadNotifCount) && $unreadNotifCount > 0)
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                                        {{ $unreadNotifCount }}
+                                    </span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="w-full lg:hidden">
+                            <form action="{{ route('logout') }}" method="POST" class="w-full mx-8">
+                                @csrf
+                                <button type="submit" class="flex items-center w-full text-[18px] font-bold py-2 text-red-500 hover:text-red-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+>>>>>>> 065482a9ca8e6853afb130d51993539a4b36aa66
                                     </svg>
-                                    @if(isset($unreadNotifCount) && $unreadNotifCount > 0)
-                                        <span class="absolute -top-1 -right-1 bg-merah text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                            {{ $unreadNotifCount }}
-                                        </span>
-                                    @endif
-                                </a>
-                            </li>
-                        </div>
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </nav>
+
+                <!-- Desktop Only: Notifikasi dan Profil -->
+                <div class="hidden lg:flex items-center space-x-4 relative">
+                    <a href="/admin/notifikasi" class="relative text-gray-600 hover:text-gray-900">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        @if(isset($unreadNotifCount) && $unreadNotifCount > 0)
+                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                                {{ $unreadNotifCount }}
+                            </span>
+                        @endif
+                    </a>
+                    <!-- Profil/Logout Dropdown -->
+                    <div class="relative">
+                        <div class="profile-button flex items-center focus:outline-none cursor-pointer" onclick="toggleDropdown()">
+                            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-300 bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <form action="{{ route('logout') }}" method="POST" class="w-full">
+                                @csrf
+                                <button type="submit" class="w-full px-4 py-2 text-sm text-red-500 hover:bg-kuning flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -121,7 +183,7 @@
     }
 }
 </style>
-    
+
     <main class="pt-[100px] pb-[200px] flex-grow container mx-auto px-0 py-8">
         @yield('content')
     </main>
@@ -129,11 +191,31 @@
     <footer class="w-full">
     <!-- Gambar ilustrasi kota Malang -->
     <img src="{{ asset('img/logo/Footer.png') }}" alt="Ilustrasi Kota Malang" class="w-full h-auto" style="max-height: 250px; object-fit: cover;">
-    
+
     <!-- Background kuning dengan copyright text -->
     <div class="w-full bg-kuning text-center py-4">
         <p class="text-hitam text-[13px]">Copyright © 2025 Pemerintah Kota Malang. - All Rights Reserved.</p>
     </div>
 </footer>
+
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const profileButton = document.querySelector('.profile-button');
+        if (!profileButton.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    document.getElementById('profileDropdown').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+    document.querySelector('.profile-button').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+</script>
 </body>
 </html>
