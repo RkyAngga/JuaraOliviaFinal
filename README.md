@@ -1,8 +1,10 @@
 LINK KARYA ULTRAMAN 25 : https://drive.google.com/drive/folders/1-NyvawklG3o9F0Den6kNbCsTT3ssL5k-?usp=sharing
 
-DOKUMENTASI GITHUB
+DOKUMENTASI BLOCKCHAIN
 - [VM 1 - Master Node](VM1_Master_Node.md)
-- [VM 3 - Node Biasa](VM3_Node.md)
+- [VM 3 - Node ](VM3_Node.md)
+- [VM 4 - Node ](VM4_Node.md)
+- [VM 5 - Bridge ](VM5_Bridge_Blokchain.md)
 
 
 
