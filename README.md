@@ -1,5 +1,9 @@
 LINK KARYA ULTRAMAN 25 : https://drive.google.com/drive/folders/1-NyvawklG3o9F0Den6kNbCsTT3ssL5k-?usp=sharing
 
+DOKUMENTASI GITHUB
+- [VM 1 - Master Node](VM1_Master_Node.md)
+- [VM 3 - Node Biasa](VM3_Node.md)
+
 
 
 
